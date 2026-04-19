@@ -1,0 +1,132 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block title %}Join GlowCart - Create Your Account{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        max-width: 500px;
+        margin: 40px auto;
+        background: white;
+        padding: 50px;
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .auth-header h1 {
+        font-size: 2.25rem;
+        margin-bottom: 10px;
+    }
+
+    /* Target Django form widgets to use global form-control styles */
+    .django-form input:not([type="checkbox"]):not([type="radio"]),
+    .django-form select,
+    .django-form textarea {
+        width: 100%;
+        padding: 16px 20px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        font-size: 1rem;
+        background: var(--surface);
+        transition: all 0.3s;
+        display: block;
+        margin-top: 8px;
+        margin-bottom: 20px;
+    }
+
+    .django-form input:focus,
+    .django-form select:focus,
+    .django-form textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+    }
+
+    /* Account type radio buttons styling */
+    #id_account_type {
+        display: flex;
+        gap: 20px;
+        list-style: none;
+        padding: 0;
+        margin-top: 12px;
+        margin-bottom: 24px;
+    }
+
+    #id_account_type label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    .btn-auth {
+        width: 100%;
+        justify-content: center;
+        padding: 18px;
+        font-size: 1.1rem;
+        margin-top: 20px;
+        border-radius: 12px;
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 1px solid var(--border);
+        font-size: 0.95rem;
+        color: var(--text-muted);
+    }
+
+    .auth-footer a {
+        color: var(--primary);
+        font-weight: 700;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div
+    style="display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 250px); padding: 40px 0;">
+    <div class="auth-container" style="margin: 0; width: 100%;">
+        <div class="auth-header">
+            <h1>Create <span>Account</span></h1>
+            <p style="color: var(--text-muted)">Join the premium marketplace today</p>
+        </div>
+
+        <form method="POST" action="{% url 'ecommerce:register' %}" class="django-form">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small class="helptext">{{ field.help_text|safe }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                <p style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary btn-auth"
+                style="transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                Create My Account
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Already have an account? <a href="{% url 'ecommerce:login' %}">Log In</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,226 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block title %}{{ product.name }} - GlowCart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        margin-top: 40px;
+    }
+
+    .image-preview {
+        background: var(--surface);
+        border-radius: 40px;
+        height: 600px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10rem;
+        color: var(--border);
+        border: 1px solid var(--border);
+    }
+
+    .detail-content h1 {
+        font-size: 3.5rem;
+        margin-bottom: 12px;
+        color: var(--bg-dark);
+    }
+
+    .price-tag {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--primary);
+        margin: 24px 0;
+    }
+
+    .stock-badge {
+        display: inline-block;
+        padding: 8px 18px;
+        border-radius: 100px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        margin-bottom: 24px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .in-stock {
+        background: #ecfdf5;
+        color: #10b981;
+    }
+
+    .out-stock {
+        background: #fef2f2;
+        color: #ef4444;
+    }
+
+    .description {
+        color: var(--text-muted);
+        font-size: 1.15rem;
+        margin-bottom: 40px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 40px;
+        line-height: 1.8;
+    }
+
+    .review-section {
+        margin-top: 60px;
+    }
+
+    .review-card {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 24px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="product-layout">
+    <div class="image-preview" style="overflow: hidden;">
+        {% if product.image.name %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}"
+            style="width: 100%; height: 100%; object-fit: contain;">
+        {% elif product.image_url %}
+        <img src="{{ product.image_url }}" alt="{{ product.name }}"
+            style="width: 100%; height: 100%; object-fit: contain;">
+        {% else %}
+        <i class="fas fa-shopping-bag"></i>
+        {% endif %}
+    </div>
+    <div class="detail-content">
+        <a href="{% url 'ecommerce:home' %}"
+            style="color: var(--primary); text-decoration: none; margin-bottom: 20px; display: inline-block;">
+            <i class="fas fa-arrow-left"></i> Back to Catalog
+        </a>
+        <h1>{{ product.name }}</h1>
+        <p style="color: var(--text-muted)">Sold by <strong>{{ product.store.name }}</strong></p>
+
+        <div class="price-tag">${{ product.price }}</div>
+
+        {% if product.stock_quantity > 0 %}
+        <span class="stock-badge in-stock">
+            <i class="fas fa-check-circle"></i> In Stock ({{ product.stock_quantity }} available)
+        </span>
+        {% else %}
+        <span class="stock-badge out-stock">
+            <i class="fas fa-times-circle"></i> Currently Out of Stock
+        </span>
+        {% endif %}
+
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px;">
+            {% if product.category %}
+            <span style="background: var(--surface); padding: 5px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">
+                <i class="fas fa-tag"></i> {{ product.get_category_display }}
+            </span>
+            {% endif %}
+            {% if product.brand %}
+            <span style="background: var(--surface); padding: 5px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">
+                <i class="fas fa-trademark"></i> {{ product.brand }}
+            </span>
+            {% endif %}
+            <span style="background: var(--surface); padding: 5px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">
+                <i class="fas fa-info-circle"></i> {{ product.get_condition_display }}
+            </span>
+        </div>
+
+        <p class="description">{{ product.description }}</p>
+
+        {% if product.specifications %}
+        <div style="margin-bottom: 40px; padding: 20px; background: #fdfdfd; border: 1px solid var(--border); border-radius: 12px;">
+            <h4 style="margin-top: 0; margin-bottom: 12px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Specifications</h4>
+            <div style="white-space: pre-wrap; color: var(--bg-dark); line-height: 1.6;">{{ product.specifications }}</div>
+        </div>
+        {% endif %}
+
+        <form action="{% url 'ecommerce:add_to_cart' product.id %}" method="POST">
+            {% csrf_token %}
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <input type="number" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}"
+                    class="form-control" style="width: 100px; padding: 12px 15px;">
+                <button type="submit" class="btn btn-primary"
+                    style="padding: 15px 40px; font-size: 1.1rem; border-radius: 12px;">
+                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="review-section">
+    <h2>Customer Reviews</h2>
+    {% if reviews %}
+    {% for review in reviews %}
+    <div class="review-card">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <strong>{{ review.user.username }}</strong>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                {% if review.is_verified %}
+                <span
+                    style="background: #dcfce7; color: #166534; font-size: 0.7rem; padding: 4px 10px; border-radius: 100px; font-weight: 700;">
+                    <i class="fas fa-check"></i> VERIFIED PURCHASE
+                </span>
+                {% else %}
+                <span
+                    style="background: #f3f4f6; color: #4b5563; font-size: 0.7rem; padding: 4px 10px; border-radius: 100px; font-weight: 700;">
+                    UNVERIFIED REVIEW
+                </span>
+                {% endif %}
+                <div style="color: var(--gold)">
+                    {% for i in "12345" %}
+                    <i class="fas fa-star {% if forloop.counter > review.rating %}fa-regular{% endif %}"></i>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <p>{{ review.comment }}</p>
+        <small style="color: var(--text-muted)">{{ review.created_at|date:"F d, Y" }}</small>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p style="color: var(--text-muted); margin-top: 20px;">No reviews yet for this product. Be the first to share your
+        experience!</p>
+    {% endif %}
+
+    {% if request.user.is_authenticated %}
+    {% if user_purchased and not user_review %}
+    <div
+        style="margin-top: 40px; padding: 40px; background: var(--surface); border-radius: 24px; border: 1px solid var(--border);">
+        <h3>Leave a Review</h3>
+        <form action="{% url 'ecommerce:add_review' product.id %}" method="POST" style="margin-top: 20px;">
+            {% csrf_token %}
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Rating</label>
+                <select name="rating" class="form-control" style="width: 100px; padding: 10px;">
+                    <option value="5">5 Stars</option>
+                    <option value="4">4 Stars</option>
+                    <option value="3">3 Stars</option>
+                    <option value="2">2 Stars</option>
+                    <option value="1">1 Star</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Your Comment</label>
+                <textarea name="comment" class="form-control" rows="4" placeholder="Share your experience..."
+                    style="width: 100%; padding: 15px; border-radius: 12px;"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="padding: 12px 30px; border-radius: 10px;">Submit
+                Review</button>
+        </form>
+    </div>
+    {% elif not user_purchased %}
+    <p style="margin-top: 40px; color: var(--text-muted);"><i class="fas fa-info-circle"></i> Purchase this product to leave a review.</p>
+    {% else %}
+    <p style="margin-top: 40px; color: var(--text-muted);"><i class="fas fa-info-circle"></i> You have already submitted
+        a review for this product.</p>
+    {% endif %}
+    {% else %}
+    <p style="margin-top: 40px;"><a href="{% url 'ecommerce:login' %}" style="color: var(--primary);">Login</a> to leave
+        a review.</p>
+    {% endif %}
+</div>
+{% endblock %}

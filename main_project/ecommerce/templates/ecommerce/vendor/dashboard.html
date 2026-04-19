@@ -1,0 +1,132 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block title %}Vendor Dashboard - GlowCart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        text-align: center;
+        transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--primary);
+        display: block;
+    }
+
+    .stat-label {
+        color: var(--text-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.05em;
+    }
+
+    .store-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 30px;
+        display: flex;
+        transition: all 0.3s;
+    }
+
+    .store-card:hover {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .store-info {
+        padding: 40px;
+        flex: 1;
+    }
+
+    .store-actions {
+        background: var(--surface);
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 250px;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>Vendor <span>Dashboard</span></h1>
+    <a href="{% url 'ecommerce:create_store' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Create New Store
+    </a>
+</div>
+
+<div class="grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 50px;">
+    <div class="stat-card">
+        <span class="stat-value">{{ stores.count }}</span>
+        <span class="stat-label">Active Stores</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value">{{ total_products }}</span>
+        <span class="stat-label">Total Products</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value">$---</span>
+        <span class="stat-label">Total Sales</span>
+    </div>
+</div>
+
+<h2>Your Stores</h2>
+<div style="margin-top: 30px;">
+    {% for store in stores %}
+    <div class="store-card">
+        <div class="store-info">
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                <h3 style="font-size: 1.5rem; margin: 0;">{{ store.name }}</h3>
+                {% if store.is_active %}
+                <span
+                    style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 700;">Active</span>
+                {% else %}
+                <span
+                    style="background: rgba(107, 114, 128, 0.1); color: #6b7280; padding: 4px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 700;">Inactive</span>
+                {% endif %}
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">{{ store.description|truncatewords:20 }}</p>
+            <small style="color: var(--text-muted)">Created on {{ store.created_at|date:"F d, Y" }}</small>
+        </div>
+        <div class="store-actions">
+            <a href="{% url 'ecommerce:manage_store' store.id %}" class="btn btn-dark"
+                style="justify-content: center;">Manage Store</a>
+            <a href="{% url 'ecommerce:edit_store' store.id %}" class="btn"
+                style="background: white; border: 1px solid var(--border); color: var(--bg-dark); justify-content: center;">Edit
+                Details</a>
+        </div>
+    </div>
+    {% empty %}
+    <div
+        style="text-align: center; padding: 60px; background: var(--surface); border-radius: 20px; border: 2px dashed var(--border);">
+        <i class="fas fa-store-slash" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 20px;"></i>
+        <h3>You haven't created any stores yet</h3>
+        <p style="color: var(--text-muted); margin-bottom: 25px;">Start selling by creating your first store.</p>
+        <a href="{% url 'ecommerce:create_store' %}" class="btn btn-primary">Create Store</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

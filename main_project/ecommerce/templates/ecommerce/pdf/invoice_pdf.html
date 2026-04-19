@@ -1,0 +1,133 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #333;
+            line-height: 1.5;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #ff6b00;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #000;
+        }
+        .logo span {
+            color: #ff6b00;
+        }
+        .invoice-title {
+            font-size: 24px;
+            margin: 20px 0;
+            color: #000;
+        }
+        .info-table {
+            width: 100%;
+            margin-bottom: 40px;
+        }
+        .info-table td {
+            vertical-align: top;
+            padding: 5px;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+        .items-table th {
+            background-color: #f6f9fc;
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .items-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .total-section {
+            text-align: right;
+            margin-top: 20px;
+        }
+        .total-amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ff6b00;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 10px;
+            color: #6b7280;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Glow<span>Cart</span></div>
+        <div class="invoice-title">OFFICIAL INVOICE</div>
+    </div>
+
+    <table class="info-table">
+        <tr>
+            <td style="width: 50%;">
+                <strong>Billed To:</strong><br>
+                {{ user.get_full_name|default:user.username }}<br>
+                {{ user.email }}<br>
+                <div style="margin-top: 10px;">
+                    <strong>Shipping Address:</strong><br>
+                    {{ order.shipping_address }}
+                </div>
+            </td>
+            <td style="text-align: right;">
+                <strong>Order ID:</strong> #{{ order.id }}<br>
+                <strong>Date:</strong> {{ order.order_date|date:"F d, Y" }}<br>
+                <strong>Status:</strong> {{ order.get_status_display }}
+            </td>
+        </tr>
+    </table>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th style="text-align: center;">Quantity</th>
+                <th style="text-align: right;">Price</th>
+                <th style="text-align: right;">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td style="text-align: center;">{{ item.quantity }}</td>
+                <td style="text-align: right;">${{ item.price_at_time }}</td>
+                <td style="text-align: right;">${{ item.quantity|multiply:item.price_at_time }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total-section">
+        <p>Total Amount Paid:</p>
+        <div class="total-amount">${{ order.total_amount }}</div>
+    </div>
+
+    <div class="footer">
+        <p>Thank you for shopping with GlowCart Premium Marketplace.</p>
+        <p>This is a system-generated document. No signature required.</p>
+        <p>&copy; 2026 GlowCart. All rights reserved.</p>
+    </div>
+</body>
+</html>

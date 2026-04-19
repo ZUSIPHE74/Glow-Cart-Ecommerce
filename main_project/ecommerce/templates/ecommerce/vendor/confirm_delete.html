@@ -1,0 +1,38 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block title %}Confirm Deletion - GlowCart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirm-container {
+        max-width: 500px;
+        margin: 60px auto;
+        background: white;
+        padding: 50px;
+        border-radius: 24px;
+        border: 1px solid #fee2e2;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(239, 68, 68, 0.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="confirm-container">
+    <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: #ef4444; margin-bottom: 24px;"></i>
+    <h1 style="margin-bottom: 15px;">Are you sure?</h1>
+    <p style="color: var(--text-muted); margin-bottom: 40px; font-size: 1.1rem;">
+        You are about to delete <strong>{{ object.name }}</strong>. This action cannot be undone.
+    </p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div style="display: flex; gap: 15px; justify-content: center;">
+            <a href="javascript:history.back()" class="btn"
+                style="background: var(--surface); color: var(--bg-dark);">No, Cancel</a>
+            <button type="submit" class="btn" style="background: #ef4444; color: white;">Yes, Delete
+                Permanently</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

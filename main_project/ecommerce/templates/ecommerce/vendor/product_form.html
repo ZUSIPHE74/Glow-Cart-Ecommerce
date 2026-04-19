@@ -1,0 +1,157 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block title %}{{ action }} Product - GlowCart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: white;
+        padding: 50px;
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border);
+    }
+
+    /* Target Django form widgets */
+    .django-form input:not([type="checkbox"]):not([type="radio"]),
+    .django-form select,
+    .django-form textarea {
+        width: 100%;
+        padding: 16px 20px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        font-size: 1rem;
+        background: var(--surface);
+        transition: all 0.3s;
+        display: block;
+        margin-top: 8px;
+        margin-bottom: 20px;
+    }
+
+    .django-form input:focus,
+    .django-form select:focus,
+    .django-form textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+    }
+
+    #drop-zone {
+        border: 2px dashed var(--border);
+        padding: 30px;
+        border-radius: 16px;
+        text-align: center;
+        margin-bottom: 25px;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    #drop-zone:hover {
+        border-color: var(--primary);
+        background: rgba(255, 107, 0, 0.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <a href="{% url 'ecommerce:manage_store' store.id %}"
+        style="color: var(--primary); text-decoration: none; font-weight: 600; display: block; margin-bottom: 20px;">
+        <i class="fas fa-chevron-left"></i> Back to Store
+    </a>
+    <h1 style="margin-bottom: 30px;">{{ action }} <span>Product</span></h1>
+    <form method="POST" class="django-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <div class="field-wrapper" {% if field.name == 'image' %}id="drop-zone"{% endif %}>
+                <label for="{{ field.id_for_label }}" style="display: block; font-weight: 700; margin-bottom: 5px;">{{ field.label }}</label>
+                {% if field.name == 'image' %}
+                    <div id="selected-image-wrapper" style="display: none; margin-bottom: 15px;">
+                        <img id="selected-image-preview" src="" alt="Selected product image"
+                            style="max-width: 200px; max-height: 200px; border: 1px solid var(--border); border-radius: 8px; display: block; margin: 0 auto;">
+                        <p id="selected-file-name" style="color: var(--text-muted); font-size: 0.95rem; margin-top: 10px;"></p>
+                    </div>
+                    <div id="upload-prompt">
+                        <i id="upload-icon" class="fas fa-cloud-upload-alt" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; display: block;"></i>
+                        <p id="upload-prompt-text" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">Drag & Drop image here or click to select</p>
+                    </div>
+                    <div style="display: none;" id="hidden-file-wrapper">{{ field }}</div>
+                {% else %}
+                    {{ field }}
+                {% endif %}
+                {% if field.help_text %}<small style="color: var(--text-muted); display: block; margin-top: -15px; margin-bottom: 20px;">{{ field.help_text }}</small>{% endif %}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary"
+            style="width: 100%; justify-content: center; padding: 18px; margin-top: 20px;">
+            Save Product
+        </button>
+    </form>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.querySelector('input[type="file"]');
+
+        if (dropZone && fileInput) {
+            dropZone.addEventListener('click', () => fileInput.click());
+
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = 'var(--primary)';
+                dropZone.style.background = 'rgba(255, 107, 0, 0.05)';
+            });
+
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = 'var(--border)';
+                dropZone.style.background = 'transparent';
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = 'var(--border)';
+                dropZone.style.background = 'transparent';
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    const file = e.dataTransfer.files[0];
+                    showSelectedImage(file);
+                }
+            });
+
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length) {
+                    const file = fileInput.files[0];
+                    showSelectedImage(file);
+                }
+            });
+
+            function showSelectedImage(file) {
+                const fileName = file.name;
+                const selectedWrapper = document.getElementById('selected-image-wrapper');
+                const selectedPreview = document.getElementById('selected-image-preview');
+                const selectedFileName = document.getElementById('selected-file-name');
+                const uploadIcon = document.getElementById('upload-icon');
+                const uploadText = document.getElementById('upload-prompt-text');
+                const currentPreview = document.getElementById('current-image-preview');
+
+                if (currentPreview) {
+                    currentPreview.style.display = 'none';
+                }
+
+                selectedWrapper.style.display = 'block';
+                selectedPreview.src = URL.createObjectURL(file);
+                selectedFileName.textContent = fileName;
+                uploadIcon.style.display = 'none';
+                uploadText.style.display = 'none';
+            }
+
+        }
+    </script>
+</div>
+{% endblock %}

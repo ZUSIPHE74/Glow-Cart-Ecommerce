@@ -1,0 +1,160 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block title %}Checkout - GlowCart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 50px;
+        margin-top: 40px;
+    }
+
+    .checkout-section {
+        background: white;
+        padding: 40px;
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+        color: var(--bg-dark);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 16px 20px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        font-size: 1rem;
+        background: var(--surface);
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+    }
+
+    .order-summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .order-summary-item:last-child {
+        border-bottom: none;
+    }
+
+    .total-row {
+        margin-top: 25px;
+        padding-top: 25px;
+        border-top: 2px solid var(--bg-dark);
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-header">
+    <a href="{% url 'ecommerce:view_cart' %}"
+        style="color: var(--text-muted); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+        <i class="fas fa-chevron-left"></i> Back to Cart
+    </a>
+    <h1>Complete Your <span>Order</span></h1>
+</div>
+
+<div class="checkout-grid">
+    <div class="checkout-section">
+        <h2 style="margin-bottom: 30px;"><i class="fas fa-truck"
+                style="color: var(--primary); margin-right: 12px;"></i>Shipping Information</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.shipping_address.id_for_label }}">Shipping Address</label>
+                <textarea name="{{ form.shipping_address.name }}" id="{{ form.shipping_address.id_for_label }}"
+                    class="form-control"
+                    placeholder="Enter your full shipping address...">{{ form.shipping_address.value|default:'' }}</textarea>
+                {% if form.shipping_address.errors %}
+                {{ form.shipping_address.errors }}
+                {% endif %}
+            </div>
+
+            <div class="form-group" style="margin-top: 30px;">
+                <label class="checkbox-group">
+                    <input type="checkbox" name="{{ form.confirm_purchase.name }}"
+                        id="{{ form.confirm_purchase.id_for_label }}" required>
+                    <span>I confirm my purchase and agree to the <a href="#"
+                            style="color: var(--primary); text-decoration: none; font-weight: 600;">Terms of
+                            Service</a></span>
+                </label>
+                {% if form.confirm_purchase.errors %}
+                {{ form.confirm_purchase.errors }}
+                {% endif %}
+            </div>
+
+            <div style="background: var(--surface); padding: 30px; border-radius: 16px; margin-top: 40px;">
+                <h3 style="margin-bottom: 20px;"><i class="fas fa-credit-card" style="margin-right: 10px;"></i>Payment
+                    Choice</h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem;">
+                    For this demonstration, we are only accepting <strong>Digital Invoice / Bank Transfer</strong>.
+                    An invoice will be emailed to you immediately after the order is placed.
+                </p>
+            </div>
+
+            <button type="submit" class="btn btn-primary"
+                style="width: 100%; justify-content: center; padding: 22px; margin-top: 40px; font-size: 1.1rem; border-radius: 16px;">
+                Place Secure Order <i class="fas fa-lock" style="margin-left: 10px; font-size: 0.9rem;"></i>
+            </button>
+        </form>
+    </div>
+
+    <aside>
+        <div class="checkout-section">
+            <h2 style="margin-bottom: 30px;">Order Summary</h2>
+            <div class="order-summary-list">
+                <div class="order-summary-item">
+                    <span style="color: var(--text-muted)">Subtotal</span>
+                    <span style="font-weight: 600;">${{ total }}</span>
+                </div>
+                <div class="order-summary-item">
+                    <span style="color: var(--text-muted)">Tax</span>
+                    <span style="font-weight: 600;">Included</span>
+                </div>
+                <div class="order-summary-item">
+                    <span style="color: var(--text-muted)">Shipping</span>
+                    <span style="color: #10b981; font-weight: 700;">FREE</span>
+                </div>
+                <div class="total-row">
+                    <span>Total</span>
+                    <span>${{ total }}</span>
+                </div>
+            </div>
+
+            <div
+                style="margin-top: 30px; display: flex; align-items: center; gap: 15px; color: var(--text-muted); font-size: 0.85rem;">
+                <i class="fas fa-shield-alt" style="font-size: 1.5rem; color: #10b981;"></i>
+                <p>Your transaction is encrypted and secure. By placing this order, you agree to our Terms of Service.
+                </p>
+            </div>
+        </div>
+    </aside>
+</div>
+{% endblock %}

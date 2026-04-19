@@ -1,0 +1,365 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GlowCart - Premium Fashion & Tech{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #ff6b00;
+            /* Vibrant Orange */
+            --primary-hover: #e65a00;
+            --bg-main: #ffffff;
+            /* White */
+            --bg-dark: #000000;
+            /* Deep Black */
+            --surface: #f9fafb;
+            /* Light Grey */
+            --text-main: #000000;
+            --text-muted: #6b7280;
+            /* Grey */
+            --text-on-dark: #ffffff;
+            --border: #e5e7eb;
+            --glass: rgba(255, 255, 255, 0.9);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        .brand {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Glass Navbar (White/Orange version) */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            z-index: 1000;
+        }
+
+        .brand {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--bg-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--bg-dark);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .cart-badge {
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            position: absolute;
+            top: -12px;
+            right: -18px;
+            font-weight: 800;
+            border: 2px solid white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 120px auto 60px;
+            padding: 0 24px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px -5px rgba(255, 107, 0, 0.3);
+        }
+
+        .btn-dark {
+            background: var(--bg-dark);
+            color: white;
+        }
+
+        .btn-dark:hover {
+            background: #1a1a1a;
+            transform: translateY(-2px);
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: var(--bg-dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 16px 20px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--surface);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            display: block;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        select.form-control {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.5em;
+            padding-right: 2.5rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 8px 0 0;
+            color: #ef4444;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .form-help {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
+
+        /* Messages */
+        .messages {
+            margin-bottom: 2.5rem;
+        }
+
+        .message {
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            list-style: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .message.success {
+            background: #ecfdf5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+        }
+
+        .message.error {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+
+        .message.warning {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+
+        footer {
+            background: var(--bg-dark);
+            padding: 80px 5%;
+            color: var(--text-on-dark);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .footer-logo span {
+            color: var(--primary);
+        }
+
+        footer p {
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <nav>
+        <a href="{% url 'ecommerce:home' %}" class="brand">GlowCart</a>
+
+        <div class="nav-links">
+            <a href="{% url 'ecommerce:home' %}">Explore</a>
+            {% if user.is_authenticated %}
+            {% if user.is_staff or 'Vendors' in user.groups.all.0.name %}
+            <a href="{% url 'ecommerce:vendor_dashboard' %}">Dashboard</a>
+            {% endif %}
+            <a href="{% url 'ecommerce:notifications_list' %}" style="position: relative;" title="Messages">
+                <i class="fas fa-envelope"></i>
+                {% with count=user|unread_count %}
+                {% if count > 0 %}
+                <span class="cart-badge">{{ count }}</span>
+                {% endif %}
+                {% endwith %}
+            </a>
+            <a href="{% url 'ecommerce:view_cart' %}" style="position: relative;" title="Cart">
+                <i class="fas fa-shopping-cart"></i>
+                {% if request.session.cart %}
+                <span class="cart-badge">{{ request.session.cart|length }}</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'ecommerce:logout' %}">Logout</a>
+            {% else %}
+            <a href="{% url 'ecommerce:login' %}">Login</a>
+            <a href="{% url 'ecommerce:register' %}" class="btn btn-primary">Join Now</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="container">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="message {{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 GlowCart Premium. All rights reserved.</p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

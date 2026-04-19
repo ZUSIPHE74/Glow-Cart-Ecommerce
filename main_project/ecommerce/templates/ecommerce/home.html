@@ -1,0 +1,229 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block title %}GlowCart - Your Premium Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero {
+        padding: 100px 0;
+        text-align: center;
+        background: radial-gradient(circle at top right, rgba(255, 107, 0, 0.05), transparent);
+        border-radius: 40px;
+        margin-bottom: 80px;
+        border: 1px solid var(--border);
+    }
+
+    .hero h1 {
+        font-size: 4rem;
+        margin-bottom: 24px;
+        letter-spacing: -2px;
+        color: var(--bg-dark);
+    }
+
+    .hero p {
+        font-size: 1.25rem;
+        color: var(--text-muted);
+        max-width: 650px;
+        margin: 0 auto 48px;
+    }
+
+    .search-container {
+        max-width: 650px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 20px 28px;
+        padding-right: 70px;
+        background: white;
+        border: 2px solid var(--border);
+        border-radius: 20px;
+        color: var(--bg-dark);
+        font-size: 1.1rem;
+        transition: all 0.3s;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 10px 15px -3px rgba(255, 107, 0, 0.1);
+    }
+
+    .search-btn {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--bg-dark);
+        border: none;
+        color: white;
+        width: 45px;
+        height: 45px;
+        border-radius: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+    }
+
+    .search-btn:hover {
+        background: var(--primary);
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+
+    .product-card:hover {
+        transform: translateY(-12px);
+        border-color: var(--primary);
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-image {
+        height: 280px;
+        background: var(--surface);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        color: var(--border);
+        transition: all 0.5s;
+    }
+
+    .product-card:hover .product-image {
+        background: #fff4ed;
+        color: var(--primary);
+    }
+
+    .product-info {
+        padding: 20px;
+    }
+
+    .product-category {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--primary);
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .product-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: var(--text-main);
+        text-decoration: none;
+        display: block;
+    }
+
+    .product-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+    }
+
+    .product-price span {
+        font-size: 0.9rem;
+        font-weight: 400;
+        color: var(--text-muted);
+    }
+
+    .rating {
+        color: var(--gold);
+        font-size: 0.875rem;
+        margin-bottom: 15px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 100px;
+        grid-column: 1 / -1;
+        color: var(--text-muted);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Experience <span style="color: var(--primary)">Excellence</span></h1>
+    <p>Curated premium goods from top vendors worldwide. Quality guaranteed, style redefined.</p>
+
+    <div class="search-container">
+        <form action="{% url 'ecommerce:home' %}" method="GET">
+            <input type="text" name="q" class="search-input" placeholder="Search premium products..."
+                value="{{ search_query|default:'' }}">
+            <button type="submit" class="search-btn">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+    </div>
+</section>
+
+<div class="grid">
+    {% for product in products %}
+    <div class="product-card">
+        <div class="product-image">
+            {% if product.image.name %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                style="width: 100%; height: 100%; object-fit: contain;">
+            {% elif product.image_url %}
+            <img src="{{ product.image_url }}" alt="{{ product.name }}"
+                style="width: 100%; height: 100%; object-fit: contain;">
+            {% else %}
+            <i class="fas fa-shopping-bag"></i>
+            {% endif %}
+        </div>
+        <div class="product-info">
+            <div class="product-category">{{ product.store.name }}</div>
+            <a href="{% url 'ecommerce:product_detail' product.id %}" class="product-name">{{ product.name }}</a>
+
+            <div class="rating">
+                {% if product.avg_rating %}
+                {% for i in "12345" %}
+                <i class="fas fa-star {% if forloop.counter > product.avg_rating %}fa-regular{% endif %}"></i>
+                {% endfor %}
+                <span>({{ product.reviews.count }})</span>
+                {% else %}
+                <span style="color: var(--text-muted)">No ratings yet</span>
+                {% endif %}
+            </div>
+
+            <div class="product-price">
+                <span>$</span>{{ product.price }}
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'ecommerce:product_detail' product.id %}" class="btn btn-primary"
+                    style="flex: 1; justify-content: center;">View Details</a>
+                <form action="{% url 'ecommerce:add_to_cart' product.id %}" method="POST" style="display: contents;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn" style="background: rgba(255,255,255,0.05); color: white;">
+                        <i class="fas fa-cart-plus"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <i class="fas fa-search-minus" style="font-size: 4rem; display: block; margin-bottom: 20px; opacity: 0.3;"></i>
+        <h3>No premium products found</h3>
+        <p>Try refining your search or explore other categories.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

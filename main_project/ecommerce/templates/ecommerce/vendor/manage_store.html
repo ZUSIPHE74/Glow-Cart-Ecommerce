@@ -1,0 +1,164 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block title %}Manage {{ store.name }} - GlowCart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .manage-header {
+        background: white;
+        padding: 40px;
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        margin-bottom: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .product-list-card {
+        background: white;
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        padding: 40px;
+    }
+
+    .product-row {
+        display: flex;
+        align-items: center;
+        padding: 20px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .product-row:last-child {
+        border-bottom: none;
+    }
+
+    .product-meta {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .status-badge {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 100px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="manage-header">
+    <div>
+        <a href="{% url 'ecommerce:vendor_dashboard' %}"
+            style="color: var(--primary); text-decoration: none; font-weight: 600; display: block; margin-bottom: 10px;">
+            <i class="fas fa-chevron-left"></i> Dashboard
+        </a>
+        <h1>Manage <span>{{ store.name }}</span></h1>
+    </div>
+    <div style="display: flex; gap: 15px;">
+        <a href="{% url 'ecommerce:edit_store' store.id %}" class="btn"
+            style="background: var(--surface); color: var(--bg-dark);">Edit Store</a>
+        <a href="{% url 'ecommerce:delete_store' store.id %}" class="btn"
+            style="background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2;">Delete Store</a>
+    </div>
+</div>
+
+<div class="product-list-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2>Products</h2>
+        <a href="{% url 'ecommerce:add_product' store.id %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Product
+        </a>
+    </div>
+
+    {% for product in products %}
+    <div class="product-row">
+        <div class="product-meta">
+            <div
+                style="width: 60px; height: 60px; background: var(--surface); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                <i class="fas fa-box"></i>
+            </div>
+            <div>
+                <strong style="display: block; font-size: 1.1rem;">{{ product.name }}</strong>
+                <span style="color: var(--text-muted); font-size: 0.9rem;">${{ product.price }} | Stock: {{ product.stock_quantity }}</span>
+            </div>
+        </div>
+        <div>
+            {% if product.stock_quantity > 0 %}
+            <span class="status-badge" style="background: #ecfdf5; color: #10b981;">Available</span>
+            {% else %}
+            <span class="status-badge" style="background: #fef2f2; color: #ef4444;">Out of Stock</span>
+            {% endif %}
+        </div>
+        <div style="margin-left: 40px; display: flex; gap: 10px;">
+            <a href="{% url 'ecommerce:edit_product' product.id %}" class="btn"
+                style="padding: 8px 16px; font-size: 0.85rem; background: var(--surface);"><i
+                    class="fas fa-edit"></i></a>
+            <a href="{% url 'ecommerce:delete_product' product.id %}" class="btn"
+                style="padding: 8px 16px; font-size: 0.85rem; background: #fef2f2; color: #ef4444;"><i
+                    class="fas fa-trash"></i></a>
+        </div>
+    </div>
+    {% empty %}
+    <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+        <p>No products in this store. Add one to start selling!</p>
+    </div>
+    {% endfor %}
+
+    <div class="orders-section" style="margin-top: 50px;">
+        <div style="display: flex; gap: 30px; margin-bottom: 30px; border-bottom: 2px solid var(--border); padding-bottom: 10px;">
+            <h2 style="color: var(--primary);">Pending Orders</h2>
+        </div>
+
+        {% for order in pending_orders %}
+        <div class="product-row" style="background: rgba(255,107,0,0.02); padding: 25px; border-radius: 16px; margin-bottom: 15px; border: 1px solid rgba(255,107,0,0.1);">
+            <div class="product-meta">
+                <div style="width: 50px; height: 50px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary); border: 1px solid var(--border);">
+                    <i class="fas fa-receipt"></i>
+                </div>
+                <div>
+                    <strong style="display: block;">Order #{{ order.id }}</strong>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">{{ order.order_date|date:"M d, Y H:i" }} | Buyer: {{ order.buyer.username }}</span>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <span class="status-badge" style="background: #fffbeb; color: #f59e0b; margin-bottom: 10px; display: inline-block;">Pending</span>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <a href="{% url 'ecommerce:update_order_status' order.id 'shipped' %}" class="btn btn-primary" style="padding: 6px 15px; font-size: 0.8rem;">
+                        Mark as Shipped
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p style="color: var(--text-muted); text-align: center; padding: 20px;">No pending orders.</p>
+        {% endfor %}
+
+        <div style="display: flex; gap: 30px; margin-top: 40px; margin-bottom: 30px; border-bottom: 2px solid var(--border); padding-bottom: 10px;">
+            <h2 style="color: var(--bg-dark);">Shipped Orders</h2>
+        </div>
+
+        {% for order in shipped_orders %}
+        <div class="product-row" style="opacity: 0.8;">
+            <div class="product-meta">
+                <div style="width: 50px; height: 50px; background: var(--surface); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div>
+                    <strong style="display: block;">Order #{{ order.id }}</strong>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">{{ order.order_date|date:"M d, Y" }} | Buyer: {{ order.buyer.username }}</span>
+                </div>
+            </div>
+            <div>
+                <span class="status-badge" style="background: #ecfdf5; color: #10b981;">Shipped</span>
+            </div>
+        </div>
+        {% empty %}
+        <p style="color: var(--text-muted); text-align: center; padding: 20px;">No shipped orders yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

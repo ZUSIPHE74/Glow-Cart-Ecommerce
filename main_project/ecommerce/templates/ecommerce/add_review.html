@@ -1,0 +1,59 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block title %}Add Review - {{ product.name }} - GlowCart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: white;
+        padding: 50px;
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border);
+    }
+
+    .django-form select,
+    .django-form textarea {
+        width: 100%;
+        padding: 16px 20px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        font-size: 1rem;
+        background: var(--surface);
+        transition: all 0.3s;
+        display: block;
+        margin-top: 8px;
+        margin-bottom: 24px;
+    }
+
+    .django-form select:focus,
+    .django-form textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <a href="{% url 'ecommerce:product_detail' product.id %}"
+        style="color: var(--primary); text-decoration: none; font-weight: 600; display: block; margin-bottom: 20px;">
+        <i class="fas fa-chevron-left"></i> Back to Product
+    </a>
+    <h1 style="margin-bottom: 10px;">Review <span>{{ product.name }}</span></h1>
+    <p style="color: var(--text-muted); margin-bottom: 30px;">Share your experience with this product</p>
+
+    <form method="POST" class="django-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary"
+            style="width: 100%; justify-content: center; padding: 18px; font-size: 1.1rem; margin-top: 20px; border-radius: 12px;">
+            Submit Review
+        </button>
+    </form>
+</div>
+{% endblock %}
