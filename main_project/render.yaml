@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: GlowCart Ecommerce
+    env: python
+    region: oregon
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn ecommerce_project.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: USE_SQLITE
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: "*"
+      - key: DJANGO_SECRET_KEY
+        value: "replace-with-your-secret-key"
+      - key: DEFAULT_FROM_EMAIL
+        value: "noreply@glowcart.com"
+    databases:
+      - glowcart-db
+
+databases:
+  - type: mysql
+    name: glowcart-db
+    plan: starter
+    region: oregon

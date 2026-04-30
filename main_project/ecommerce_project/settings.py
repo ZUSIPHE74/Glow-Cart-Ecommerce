@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import os
+import urllib.parse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -35,6 +36,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -64,9 +66,35 @@ WSGI_APPLICATION = "ecommerce_project.wsgi.application"
 ASGI_APPLICATION = "ecommerce_project.asgi.application"
 
 
+DATABASE_URL = os.getenv("DATABASE_URL")
 USE_SQLITE = os.getenv("USE_SQLITE", "True").strip().lower() in {"1", "true", "yes", "on"}
 
-if USE_SQLITE:
+if DATABASE_URL:
+    parsed_url = urllib.parse.urlparse(DATABASE_URL)
+    if parsed_url.scheme.startswith("mysql"):
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.mysql",
+                "NAME": parsed_url.path.lstrip("/"),
+                "USER": parsed_url.username or "",
+                "PASSWORD": parsed_url.password or "",
+                "HOST": parsed_url.hostname or "127.0.0.1",
+                "PORT": parsed_url.port or "3306",
+                "OPTIONS": {
+                    "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+                },
+            }
+        }
+    elif parsed_url.scheme.startswith("sqlite"):
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": BASE_DIR / parsed_url.path.lstrip("/"),
+            }
+        }
+    else:
+        raise ValueError(f"Unsupported DATABASE_URL scheme: {parsed_url.scheme}")
+elif USE_SQLITE:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -113,6 +141,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
