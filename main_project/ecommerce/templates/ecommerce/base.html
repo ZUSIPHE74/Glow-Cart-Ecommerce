@@ -317,7 +317,6 @@
 
         <div class="nav-links">
             <a href="{% url 'ecommerce:home' %}">Explore</a>
-            <a href="{% url 'ecommerce:api_docs' %}">API Docs</a>
             {% if user.is_authenticated %}
             {% if user.is_staff or 'Vendors' in user.groups.all.0.name %}
             <a href="{% url 'ecommerce:vendor_dashboard' %}">Dashboard</a>
