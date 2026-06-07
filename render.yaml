@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: GlowCart Ecommerce
+    name: GlowCart-Ecommerce
     env: python
     region: oregon
     branch: main
@@ -11,18 +11,10 @@ services:
       - key: DJANGO_DEBUG
         value: "False"
       - key: USE_SQLITE
-        value: "False"
+        value: "True"
       - key: DJANGO_ALLOWED_HOSTS
         value: "*"
       - key: DJANGO_SECRET_KEY
-        value: "replace-with-your-secret-key"
+        value: "glowcart-secret-key-prod-12345"
       - key: DEFAULT_FROM_EMAIL
         value: "noreply@glowcart.com"
-    databases:
-      - glowcart-db
-
-databases:
-  - type: mysql
-    name: glowcart-db
-    plan: starter
-    region: oregon
