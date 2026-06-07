@@ -37,6 +37,7 @@ class Store(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    logo = models.ImageField(upload_to='stores/', blank=True, null=True)
     
     def __str__(self):
         return self.name
@@ -162,4 +163,5 @@ class Notification(models.Model):
     
     def __str__(self):
         return f"Notification for {self.user.username}: {self.title}"
+
 

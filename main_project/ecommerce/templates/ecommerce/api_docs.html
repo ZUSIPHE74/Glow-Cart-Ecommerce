@@ -1,0 +1,119 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block content %}
+<div class="container" style="max-width: 1000px; margin: 40px auto; padding: 0 20px;">
+    <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.5rem; margin-bottom: 10px; color: var(--text-primary);">API Reference Docs</h1>
+    <p style="color: var(--text-secondary); margin-bottom: 40px; font-size: 1.1rem; line-height: 1.6;">
+        Welcome to the GlowCart RESTful API reference documentation. These endpoints allow developers, integration clients, and evaluation systems to query stores, products, reviews, and create resources programmatically.
+    </p>
+
+    <!-- Authentication Section -->
+    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 24px; margin-bottom: 40px;">
+        <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; margin-bottom: 12px; color: var(--accent-color);">Authentication</h2>
+        <p style="color: var(--text-secondary); line-height: 1.6; font-size: 0.95rem; margin-bottom: 0;">
+            Write operations (POST, PUT, PATCH, DELETE) and certain restricted query routes require HTTP Basic Authentication or Session Authentication. Include the standard <code>Authorization: Basic &lt;credentials&gt;</code> header in your client requests.
+        </p>
+    </div>
+
+    <!-- API Routes List -->
+    <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; margin-bottom: 24px; color: var(--text-primary);">Available Endpoints</h2>
+
+    <!-- GET /api/get/stores/ -->
+    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="background: #2ea44f; color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; font-family: monospace;">GET</span>
+                <span style="font-family: monospace; font-size: 1.1rem; color: var(--text-primary); font-weight: bold;">/api/get/stores/</span>
+            </div>
+            <span style="font-size: 0.85rem; color: var(--text-secondary);">Access: Public</span>
+        </div>
+        <p style="color: var(--text-secondary); line-height: 1.5; font-size: 0.95rem; margin-bottom: 12px;">
+            Retrieve a list of all active stores in the database. Filter by vendor owner using the query parameter.
+        </p>
+        <div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.85rem; color: #a5d6ff; border: 1px solid rgba(255, 255, 255, 0.05);">
+            Query Parameter: ?vendor_id=&lt;int&gt; (Optional)
+        </div>
+    </div>
+
+    <!-- GET /api/get/stores/vendor/<vendor_id>/ -->
+    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="background: #2ea44f; color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; font-family: monospace;">GET</span>
+                <span style="font-family: monospace; font-size: 1.1rem; color: var(--text-primary); font-weight: bold;">/api/get/stores/vendor/&lt;vendor_id&gt;/</span>
+            </div>
+            <span style="font-size: 0.85rem; color: var(--text-secondary);">Access: Public</span>
+        </div>
+        <p style="color: var(--text-secondary); line-height: 1.5; font-size: 0.95rem; margin-bottom: 0;">
+            Retrieve all specific store locations listed under a target vendor account identifier.
+        </p>
+    </div>
+
+    <!-- GET /api/get/products/store/<store_id>/ -->
+    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="background: #2ea44f; color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; font-family: monospace;">GET</span>
+                <span style="font-family: monospace; font-size: 1.1rem; color: var(--text-primary); font-weight: bold;">/api/get/products/store/&lt;store_id&gt;/</span>
+            </div>
+            <span style="font-size: 0.85rem; color: var(--text-secondary);">Access: Public</span>
+        </div>
+        <p style="color: var(--text-secondary); line-height: 1.5; font-size: 0.95rem; margin-bottom: 0;">
+            Retrieve all items, inventory quantities, and detailed specifications associated with a specific store location.
+        </p>
+    </div>
+
+    <!-- POST /api/post/store/ -->
+    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="background: #005cc5; color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; font-family: monospace;">POST</span>
+                <span style="font-family: monospace; font-size: 1.1rem; color: var(--text-primary); font-weight: bold;">/api/post/store/</span>
+            </div>
+            <span style="font-size: 0.85rem; color: var(--text-secondary);">Access: Auth Vendors</span>
+        </div>
+        <p style="color: var(--text-secondary); line-height: 1.5; font-size: 0.95rem; margin-bottom: 12px;">
+            Allows a registered vendor to configure and open a new storefront. The request owner field must match the authenticated credentials.
+        </p>
+        <div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.85rem; color: #8bc34a; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 10px;">
+            Request Body (JSON):<br>
+            { "name": "Boutique Collection", "description": "Custom apparel", "vendor": 1 }
+        </div>
+    </div>
+
+    <!-- POST /api/post/product/ -->
+    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="background: #005cc5; color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; font-family: monospace;">POST</span>
+                <span style="font-family: monospace; font-size: 1.1rem; color: var(--text-primary); font-weight: bold;">/api/post/product/</span>
+            </div>
+            <span style="font-size: 0.85rem; color: var(--text-secondary);">Access: Auth Store Owners</span>
+        </div>
+        <p style="color: var(--text-secondary); line-height: 1.5; font-size: 0.95rem; margin-bottom: 12px;">
+            Allows vendors to publish new items on active store catalogs they own. Checks ownership validations before catalog entry.
+        </p>
+        <div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.85rem; color: #8bc34a; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 10px;">
+            Request Body (JSON):<br>
+            { "store": 1, "name": "Luxury Silk Ties", "description": "100% silk ties", "price": "45.00", "stock_quantity": 50, "category": "fashion", "condition": "new" }
+        </div>
+    </div>
+
+    <!-- GET /api/get/reviews/ -->
+    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="background: #2ea44f; color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; font-family: monospace;">GET</span>
+                <span style="font-family: monospace; font-size: 1.1rem; color: var(--text-primary); font-weight: bold;">/api/get/reviews/</span>
+            </div>
+            <span style="font-size: 0.85rem; color: var(--text-secondary);">Access: Auth Users</span>
+        </div>
+        <p style="color: var(--text-secondary); line-height: 1.5; font-size: 0.95rem; margin-bottom: 12px;">
+            Retrieve comments, verification badges, and product feedback ratings.
+        </p>
+        <div style="background: rgba(0, 0, 0, 0.2); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.85rem; color: #a5d6ff; border: 1px solid rgba(255, 255, 255, 0.05);">
+            Query Parameters (Use either): ?product_id=&lt;int&gt; OR ?store_id=&lt;int&gt;
+        </div>
+    </div>
+</div>
+{% endblock %}

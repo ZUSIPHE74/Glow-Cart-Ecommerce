@@ -110,15 +110,64 @@
                 {% endif %}
             </div>
 
+            <!-- Payment Section -->
             <div style="background: var(--surface); padding: 30px; border-radius: 16px; margin-top: 40px;">
-                <h3 style="margin-bottom: 20px;"><i class="fas fa-credit-card" style="margin-right: 10px;"></i>Payment
-                    Choice</h3>
-                <p style="color: var(--text-muted); font-size: 0.95rem;">
-                    For this demonstration, we are only accepting <strong>Digital Invoice / Bank Transfer</strong>.
-                    An invoice will be emailed to you immediately after the order is placed.
-                </p>
+                <h3 style="margin-bottom: 20px;"><i class="fas fa-credit-card" style="margin-right: 10px;"></i>Payment Choice</h3>
+                
+                <div class="form-group payment-options" style="margin-bottom: 0;">
+                    {{ form.payment_method }}
+                    {% if form.payment_method.errors %}
+                        <div style="color: #ef4444; font-size: 0.9rem; margin-top: 5px;">{{ form.payment_method.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div id="credit-card-fields" style="display: none; margin-top: 25px; padding-top: 25px; border-top: 1px dashed var(--border);">
+                    <div class="form-group">
+                        <label for="{{ form.card_number.id_for_label }}">Card Number</label>
+                        {{ form.card_number }}
+                        {% if form.card_number.errors %}<div style="color: #ef4444; font-size: 0.9rem; margin-top: 5px;">{{ form.card_number.errors }}</div>{% endif %}
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label for="{{ form.expiry_date.id_for_label }}">Expiry Date</label>
+                            {{ form.expiry_date }}
+                            {% if form.expiry_date.errors %}<div style="color: #ef4444; font-size: 0.9rem; margin-top: 5px;">{{ form.expiry_date.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.cvv.id_for_label }}">CVV</label>
+                            {{ form.cvv }}
+                            {% if form.cvv.errors %}<div style="color: #ef4444; font-size: 0.9rem; margin-top: 5px;">{{ form.cvv.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
 
+            {% if form.non_field_errors %}
+                <div style="background: #fef2f2; border: 1px solid #fee2e2; color: #ef4444; padding: 15px; border-radius: 12px; margin-top: 20px;">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+                    const ccFields = document.getElementById('credit-card-fields');
+
+                    function toggleCCFields() {
+                        const selected = document.querySelector('input[name="payment_method"]:checked');
+                        if (selected && selected.value === 'credit_card') {
+                            ccFields.style.display = 'block';
+                        } else {
+                            ccFields.style.display = 'none';
+                        }
+                    }
+
+                    paymentRadios.forEach(radio => radio.addEventListener('change', toggleCCFields));
+                    toggleCCFields(); // Initialize on load
+                });
+            </script>
+            
             <button type="submit" class="btn btn-primary"
                 style="width: 100%; justify-content: center; padding: 22px; margin-top: 40px; font-size: 1.1rem; border-radius: 16px;">
                 Place Secure Order <i class="fas fa-lock" style="margin-left: 10px; font-size: 0.9rem;"></i>

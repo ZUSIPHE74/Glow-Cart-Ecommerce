@@ -74,4 +74,25 @@ class ReviewForm(forms.ModelForm):
 class CheckoutForm(forms.Form):
     """Form for checkout information"""
     shipping_address = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}))
-    confirm_purchase = forms.BooleanField(required=True, label="I confirm my purchase")
+    
+    PAYMENT_CHOICES = [
+        ('credit_card', 'Credit Card'),
+        ('paypal', 'PayPal'),
+        ('apple_pay', 'Apple Pay'),
+    ]
+    payment_method = forms.ChoiceField(choices=PAYMENT_CHOICES, widget=forms.RadioSelect, initial='apple_pay')
+    
+    card_number = forms.CharField(max_length=16, min_length=16, required=False, widget=forms.TextInput(attrs={'placeholder': '16-digit card number', 'class': 'form-control'}))
+    expiry_date = forms.CharField(max_length=5, min_length=5, required=False, widget=forms.TextInput(attrs={'placeholder': 'MM/YY', 'class': 'form-control'}))
+    cvv = forms.CharField(max_length=4, min_length=3, required=False, widget=forms.TextInput(attrs={'placeholder': 'CVV', 'class': 'form-control'}))
+
+    confirm_purchase = forms.BooleanField(required=True, label="I confirm my purchase")
+
+    def clean(self):
+        cleaned_data = super().clean()
+        payment_method = cleaned_data.get('payment_method')
+        
+        if payment_method == 'credit_card':
+            if not cleaned_data.get('card_number') or not cleaned_data.get('expiry_date') or not cleaned_data.get('cvv'):
+                raise forms.ValidationError("Please provide all card details (Card Number, Expiry, CVV) for Credit Card payment.")
+        return cleaned_data

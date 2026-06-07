@@ -152,7 +152,7 @@
         style="background: rgba(16,185,129,0.05); padding: 25px; border-radius: 16px; border: 1px solid rgba(16,185,129,0.1); margin-bottom: 40px; display: flex; align-items: center; gap: 20px; text-align: left;">
         <i class="fas fa-star" style="font-size: 2rem; color: #10b981;"></i>
         <div>
-            <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 10px;">You can leave reviews for the products in your order. The review form will only appear after a purchase.</p>
+            <p style="font-size: 0.9rem; line-height: 1.5; margin-bottom: 10px;">You can leave reviews for the products in your order.</p>
             <button id="open-review-popup" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 15px;">
                 <i class="fas fa-star"></i> Leave a Review Now
             </button>
@@ -166,23 +166,53 @@
     </div>
 </div>
 
-{% if reviewable_products %}
+{% if show_review_popup %}
 <div class="review-popup-overlay" id="review-popup-overlay"></div>
 <div class="review-popup" id="review-popup">
     <div class="review-popup-header">
-        <h2>Leave a review for your purchased items</h2>
+        <h2>Leave a review</h2>
         <button type="button" class="close-review-popup" id="close-review-popup">×</button>
     </div>
-    <p>If you recently bought one of these products, your review will be tagged as verified once it is submitted.</p>
-    <div class="review-popup-list">
-        {% for product in reviewable_products %}
-        <div class="review-popup-item">
-            <span>{{ product.name }}</span>
-            <a href="{% url 'ecommerce:product_detail' product.id %}" class="btn btn-secondary" style="padding: 8px 12px;">Review</a>
+    <div id="review-list-view">
+        <p>Please share your experience to help future buyers.</p>
+        <div class="review-popup-list">
+            {% for product in reviewable_products %}
+            <div class="review-popup-item">
+                <span>{{ product.name }}</span>
+                <button type="button" class="btn btn-secondary btn-open-review-form" data-target="form-view-{{ product.id }}" style="padding: 8px 12px; background: rgba(16,185,129,0.1); color: #10b981; border: none;">Review</button>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+        <button type="button" class="btn btn-outline" id="close-review-popup-bottom" style="margin-top: 20px;">Maybe later</button>
     </div>
-    <button type="button" class="btn btn-outline" id="close-review-popup-bottom" style="margin-top: 20px;">Maybe later</button>
+
+    {% for product in reviewable_products %}
+    <div id="form-view-{{ product.id }}" style="display: none;" class="review-form-view text-left">
+        <h3 style="margin-bottom: 20px; font-size: 1.1rem; color: var(--bg-dark);">Review: {{ product.name }}</h3>
+        <form action="{% url 'ecommerce:add_review' product.id %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 5px; text-align: left;">Rating</label>
+                <select name="rating" class="form-control" style="width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
+                    <option value="5">5 Stars</option>
+                    <option value="4">4 Stars</option>
+                    <option value="3">3 Stars</option>
+                    <option value="2">2 Stars</option>
+                    <option value="1">1 Star</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 5px; text-align: left;">Comment</label>
+                <textarea name="comment" class="form-control" rows="3" style="width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px;" placeholder="Share your experience..."></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn btn-outline btn-back-to-list" style="padding: 10px 15px;">Cancel</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 15px;">Submit Review</button>
+            </div>
+        </form>
+    </div>
+    {% endfor %}
 </div>
 
 <script>
@@ -219,9 +249,26 @@
             overlay.addEventListener('click', hidePopup);
         }
 
-        if (openButton) {
-            showPopup();
-        }
+
+
+        const openReviewBtns = document.querySelectorAll('.btn-open-review-form');
+        const backToListBtns = document.querySelectorAll('.btn-back-to-list');
+        const listView = document.getElementById('review-list-view');
+        const formViews = document.querySelectorAll('.review-form-view');
+
+        openReviewBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                listView.style.display = 'none';
+                document.getElementById(this.dataset.target).style.display = 'block';
+            });
+        });
+
+        backToListBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                formViews.forEach(view => view.style.display = 'none');
+                listView.style.display = 'block';
+            });
+        });
     });
 </script>
 {% endif %}

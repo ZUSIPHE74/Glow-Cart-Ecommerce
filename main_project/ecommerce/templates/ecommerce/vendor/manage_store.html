@@ -160,5 +160,36 @@
         <p style="color: var(--text-muted); text-align: center; padding: 20px;">No shipped orders yet.</p>
         {% endfor %}
     </div>
+
+    <!-- Store Reviews Section -->
+    <div class="reviews-section" style="margin-top: 50px;">
+        <div style="display: flex; gap: 30px; margin-bottom: 30px; border-bottom: 2px solid var(--border); padding-bottom: 10px;">
+            <h2 style="color: var(--primary);">Store Reviews</h2>
+        </div>
+
+        {% for review in reviews %}
+        <div class="product-row" style="background: white; padding: 25px; border-radius: 16px; margin-bottom: 15px; border: 1px solid var(--border);">
+            <div class="product-meta">
+                <div style="width: 50px; height: 50px; background: rgba(16, 185, 129, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #10b981;">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div>
+                    <strong style="display: block;">{{ review.product.name }}</strong>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">
+                        Rated {{ review.rating }}/5 by {{ review.user.username }} on {{ review.created_at|date:"M d, Y" }}
+                    </span>
+                    <p style="margin-top: 10px; font-size: 0.95rem; color: var(--bg-dark);">"{{ review.comment }}"</p>
+                </div>
+            </div>
+            {% if review.is_verified %}
+            <div style="text-align: right;">
+                <span class="status-badge" style="background: #ecfdf5; color: #10b981;">Verified Purchase</span>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p style="color: var(--text-muted); text-align: center; padding: 20px;">No reviews for this store yet.</p>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

@@ -5,6 +5,9 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+from dotenv import load_dotenv
+load_dotenv(BASE_DIR / ".env")
+
 
 SECRET_KEY = os.getenv(
     "DJANGO_SECRET_KEY",
@@ -21,6 +24,7 @@ else:
     # Keep local development flexible if opened via machine hostname/IP.
     if DEBUG:
         ALLOWED_HOSTS.append("*")
+    ALLOWED_HOSTS.append("testserver")
 
 
 INSTALLED_APPS = [
@@ -30,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
     "ecommerce",
 ]
 
@@ -132,3 +137,15 @@ CSRF_COOKIE_SECURE = not DEBUG
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
+
+# Django Rest Framework Configuration
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+}
+

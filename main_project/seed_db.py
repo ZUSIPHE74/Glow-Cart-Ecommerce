@@ -74,7 +74,7 @@ def seed():
         },
         {
             'name': 'Nebula Smart Camera X1',
-            'description': 'Professional mirrorless camera in a compact body. 8K video recording and AI-powered autofocus.',
+            'description': 'Professional mirrorless camera in a compact body. 8K video recording and advanced autofocus.',
             'price': 2400.00,
             'stock_quantity': 8,
             'category': 'electronics',
@@ -97,17 +97,6 @@ def seed():
         {
             'name': 'Vertex Ergonomic Chair',
             'description': 'Designed for long hours of comfort. Features adjustable lumbar support, 4D armrests, and breathable mesh.',
-            'price': 599.00,
-            'stock_quantity': 20,
-            'category': 'home',
-            'brand': 'Vertex',
-            'condition': 'new',
-            'specifications': 'Weight Capacity: 300lbs, Reclining: 135 degrees',
-            'image_url': 'https://images.unsplash.com/photo-1505797149-43b0069ec26b?q=80&w=1200&auto=format&fit=crop'
-        },
-        {
-            'name': 'Vertex Ergonomic Office Chair',
-            'description': 'Premium office chair with lumbar support and adjustable height. Perfect for long work sessions.',
             'price': 599.00,
             'stock_quantity': 20,
             'category': 'home',

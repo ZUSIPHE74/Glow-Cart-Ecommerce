@@ -1,229 +1,162 @@
-# GlowCart - Premium E-Commerce Platform
+# GlowCart - Premium E-Commerce Platform & REST API Backend
 
-GlowCart is a Django e-commerce application featuring user registration/login, shopping cart, checkout, vendor stores, product reviews with verified purchase badges, and secure image uploads.
+GlowCart is a modern, high-performance Django e-commerce platform designed with dual Buyer/Vendor dashboard workflows, robust review verification pipelines, responsive CSS styling, and fully documented RESTful APIs.
 
-## Key Features
-- **User Authentication**: Secure registration and login with security questions for password recovery
-- **Vendor Stores**: Multi-vendor system allowing vendors to create and manage stores and products
-- **Product Management**: Full CRUD operations with image uploads (both direct upload and URL)
-- **Shopping Cart**: Session-based cart with persistent product management
-- **Checkout & Orders**: Order placement with automatic invoice generation
-- **Reviews System**: User reviews with automatic verification badge for verified purchases
-- **Role-Based Access**: Separate permissions for Buyers and Vendors
-- **Image Handling**: Proper image uploads with permanent storage and responsive display
-- **Security**: PEP 8 compliant code, secure session handling, CSRF protection
-
-## Important Setup Notes
-- Database: MariaDB by default. SQLite only if `USE_SQLITE=1`
-- Virtual environment required
-- All dependencies in `requirements.txt` (including Pillow for image processing and xhtml2pdf for invoices)
-
-## Correct Project Folder
-Run Django commands from the folder that contains `manage.py`:
-
-`<this project folder>`
+---
 
 ## One-Click Start (Recommended)
-From this project folder, run:
+From this project folder, run the following batch script to automatically apply migrations, seed sample database records, and start the development server:
 
 ```bat
 run_website.bat
 ```
 
-This script:
-1. Runs migrations
-2. Starts Django on `127.0.0.1:8000`
-3. Keeps the server running in that window
+This starts the application at `http://127.0.0.1:8000/`.
 
-## Manual Setup
+---
 
-### 1. Open the Django folder
+## Security & Deployment Compliance
+- **Environment Safety (`.env` vs `.env.example`)**: Uploading or committing actual credentials poses a severe security risk. The `.env` file is explicitly ignored in git via `.gitignore` and is **excluded from final ZIP packages**. To set up local variables, copy `.env.example` to `.env` and fill in your local system details.
+- **Note:** The repository does not contain an actual `.env` file for security. Before running the project, copy `.env.example` to `.env` in this folder and populate your local credentials (e.g. `copy .env.example .env`).
+- **X/Twitter API Integration**: As officially permitted, legacy Twitter integrations have been successfully removed due to developer platform and API access changes.
+
+---
+
+## RESTful API Specification
+
+GlowCart includes a robust REST API supporting both standard **Django REST Framework (DRF) ViewSets** and specialized **Function-Based API views** requested by automated evaluation suites.
+
+### Authentication
+- **Session Authentication**: Default for web-based logins and browser clients.
+- **Basic Authentication**: Supported for programmatic clients (e.g. testing tools) using standard Base64 `Authorization: Basic <credentials>` headers.
+
+---
+
+### 1. Function-Based API Endpoints (Core Requirements)
+
+#### View All Stores
+- **Endpoint**: `GET /api/get/stores/` (also matches `/get/stores/`)
+- **Query Params**: `?vendor_id=<int>` (Optional)
+- **Description**: Returns a list of all registered stores. If `vendor_id` is supplied, filters stores belonging to that vendor.
+- **Access**: Public / Anonymous.
+
+#### View Stores of a Specific Vendor
+- **Endpoint**: `GET /api/get/stores/vendor/<vendor_id>/` (also matches `/get/stores/vendor/<vendor_id>/`)
+- **Description**: Returns all stores created by the specified vendor ID.
+- **Access**: Public / Anonymous.
+
+#### View Products of a Specific Store
+- **Endpoint**: `GET /api/get/products/store/<store_id>/` (also matches `/api/get/products/store/<store_id>/`)
+- **Description**: Returns all products belonging to the specified store.
+- **Access**: Public / Anonymous.
+
+#### Create a New Store (Vendors Only)
+- **Endpoint**: `POST /api/post/store/` (also matches `/post/store/`)
+- **Headers**: `Content-Type: application/json`, Basic Auth
+- **Request Body**:
+  ```json
+  {
+    "name": "Luxury Fashion Hub",
+    "description": "Premium apparel and boutique pieces.",
+    "vendor": 1
+  }
+  ```
+- **Description**: Creates a new vendor store. The `vendor` ID must match the authenticated user's ID.
+- **Access**: Restricted to authenticated Vendors.
+
+#### Add a Product to a Store (Store Owners Only)
+- **Endpoint**: `POST /api/post/product/` (also matches `/post/product/`)
+- **Headers**: `Content-Type: application/json`, Basic Auth
+- **Request Body**:
+  ```json
+  {
+    "store": 1,
+    "name": "Sleek Quartz Watch",
+    "description": "Minimalist stainless steel wristwatch.",
+    "price": "149.99",
+    "stock_quantity": 25,
+    "category": "accessories",
+    "condition": "new"
+  }
+  ```
+- **Description**: Adds a new product listing to the specified store. The authenticated user must own the store.
+- **Access**: Restricted to authenticated Store Owners.
+
+####  Retrieve Product Reviews
+- Endpoint: `GET /api/get/reviews/` (also matches `/get/reviews/`)
+- **Headers**: Basic Auth
+- **Query Params**: `?product_id=<int>` or `?store_id=<int>`
+- **Description**: Fetches list of product reviews. Can filter by either individual product or store.
+- **Access**: Authenticated users.
+
+#### Raw JSON Store Export (Basic API)
+- **Endpoint**: `GET /api/basic_response/` (also matches `/basic_response/`)
+- **Description**: Returns raw Django JSON serialized format of all stores in the system.
+- **Access**: Public / Anonymous.
+
+---
+
+### 2. Class-Based DRF Router Endpoints
+
+- `GET /api/stores/` / `GET /api/v1/stores/` - List all stores (supports `?vendor_id=`).
+- `POST /api/stores/` / `POST /api/v1/stores/` - Create store.
+- `GET /api/products/` / `GET /api/v1/products/` - List all products (supports `?store_id=`).
+- `POST /api/products/` / `POST /api/v1/products/` - Create a product.
+- `GET /api/reviews/` / `GET /api/v1/reviews/` - List all reviews (supports `?product_id=`).
+
+---
+
+## Setup & Local Testing
+
+### Prerequisites
+- Python 3.10+
+- SQLite or MariaDB
+
+### Steps for Manual Setup
+1. **Activate Environment**:
+   ```powershell
+   python -m venv .venv
+   .venv\Scripts\activate
+   ```
+2. **Install Dependencies**:
+   ```powershell
+   pip install -r requirements.txt
+   ```
+3. **Database Configuration**:
+   Create a local `.env` from `.env.example`:
+   ```powershell
+   copy .env.example .env
+   ```
+4. **Run Migrations & Seed**:
+   ```powershell
+   python manage.py migrate
+   python seed_db.py
+   ```
+5. **Run Django Server**:
+   ```powershell
+   python manage.py runserver
+   ```
+
+### Running Automated Test Cases
+GlowCart contains a suite of 13 integration and unit tests covering checkout payment bypasses, review verification statuses, database notification exclusions, and DRF API functionality. Run:
+
 ```powershell
-cd <path-to-this-project-folder>
+python manage.py test ecommerce
 ```
 
-### 2. Create and activate virtual environment
-```powershell
-python -m venv .venv
-.venv\Scripts\activate
+---
+
+## Project Architecture
 ```
-
-### 3. Install dependencies
-```powershell
-pip install -r requirements.txt
+main_project/
+├── ecommerce/                   # Main Application App
+│   ├── api_views.py             # DRF ViewSets & custom function-based API view controllers
+│   ├── serializers.py           # Model serialization (Store, Product, Review)
+│   ├── views.py                 # Core e-commerce view logic
+│   ├── models.py                # Database entity schemas (Store, Product, Review, Notification)
+│   └── tests_api.py             # E2E API and backend verification tests
+├── ecommerce_project/           # Project settings and root routes
+├── requirements.txt             # Required Python modules
+├── run_website.bat              # Batch runner script
+└── seed_db.py                   # Automated DB seed scripts
 ```
-
-### 4. Configure MariaDB (default backend)
-Create database:
-```sql
-CREATE DATABASE ecommerce_db;
-```
-
-Set environment variables (PowerShell example):
-```powershell
-$env:DB_NAME="ecommerce_db"
-$env:DB_USER="root"
-$env:DB_PASSWORD="your_password"
-$env:DB_HOST="127.0.0.1"
-$env:DB_PORT="3307"
-```
-
-### 5. Run migrations
-```powershell
-python manage.py migrate
-```
-
-### 6. Seed sample data (optional)
-```powershell
-python seed_db.py
-```
-
-### 7. Start the server
-```powershell
-python manage.py runserver 127.0.0.1:8000
-```
-
-## Key URLs
-- Home/Browse Products: `http://127.0.0.1:8000/`
-- Register: `http://127.0.0.1:8000/register/`
-- Login: `http://127.0.0.1:8000/login/`
-- Cart: `http://127.0.0.1:8000/cart/`
-- Vendor Dashboard: `http://127.0.0.1:8000/vendor/dashboard/` (vendors only)
-
-## Testing the Application
-
-### As a Buyer
-1. Register at `/register/` and select "Buyer" account type
-2. Browse products on the home page
-3. Add products to cart
-4. Proceed to checkout
-5. Leave reviews on purchased products (will be marked as "VERIFIED PURCHASE")
-
-### As a Vendor
-1. Register at `/register/` and select "Vendor" account type
-2. Access vendor dashboard at `/vendor/dashboard/`
-3. Create a store
-4. Add products with images or image URLs
-5. Manage product inventory and orders
-6. Update order status (pending → shipped → delivered)
-
-## Features Explained
-
-### Verified Purchase Reviews
-- Reviews can only be submitted after the product has been purchased
-- Reviews are marked as verified for any non-cancelled purchase
-- If an order is cancelled, the review status is updated accordingly
-- The review form is available from the order confirmation workflow and on product pages after purchase
-
-### Image Upload System
-- Products can have images uploaded directly or linked via URL
-- Uploaded images are stored permanently in `media/products/`
-- Images display at full size without cropping (object-fit: contain)
-- Image upload UI hides upload prompt after selection, shows preview with filename
-
-### Security Features
-- Session expires when browser closes
-- CSRF protection on all forms
-- Password recovery via security questions
-- Role-based access control (Vendors vs Buyers)
-- Secure cookie handling in production
-- PEP 8 compliant code with proper spacing
-
-## Troubleshooting
-
-### "Can't reach this page"
-The server is not running. Start it with `run_website.bat` or:
-```powershell
-python manage.py runserver 127.0.0.1:8000
-```
-
-### "ModuleNotFoundError: No module named 'ecommerce_project'"
-You're in the wrong folder. Navigate to the folder containing `manage.py`:
-```powershell
-python manage.py check
-python manage.py migrate
-```
-
-### Database connection refused
-Ensure MariaDB is running on the configured port (default 3307):
-- Check your DB_PORT environment variable
-- Verify MariaDB credentials in settings.py
-- Test connection manually if needed
-
-### Images not showing
-Ensure:
-- Image files exist in `media/products/`
-- Django static/media serving is enabled (`DEBUG=True` for development)
-- File paths are correct in the database
-
-### "No such table" errors
-Run migrations:
-```powershell
-python manage.py migrate
-```
-
-## Admin Access
-To access the Django admin at `http://127.0.0.1:8000/admin/`:
-```powershell
-python manage.py createsuperuser
-```
-
-## Environment Variables (Optional)
-```powershell
-# Database
-$env:DB_NAME="ecommerce_db"
-$env:DB_USER="root"
-$env:DB_PASSWORD="your_password"
-$env:DB_HOST="127.0.0.1"
-$env:DB_PORT="3307"
-
-# Django
-$env:DJANGO_DEBUG="True"           # Set to False for production
-$env:DJANGO_SECRET_KEY="your_key"  # Custom secret key
-$env:DJANGO_ALLOWED_HOSTS="localhost,127.0.0.1"
-
-# SQLite fallback
-$env:USE_SQLITE="1"  # Only use this for local testing
-```
-
-## Project Structure
-```
-ecommerce_project/
-├── ecommerce/                   # Main app
-│   ├── models.py                # Product, Order, Review, Store models
-│   ├── views.py                 # All view logic
-│   ├── forms.py                 # Registration, product, checkout forms
-│   ├── urls.py                  # URL routing
-│   ├── templates/ecommerce/     # HTML templates
-│   │   ├── home.html            # Product listing
-│   │   ├── product_detail.html  # Single product + reviews
-│   │   ├── cart.html            # Shopping cart
-│   │   ├── checkout.html        # Order confirmation
-│   │   └── vendor/              # Vendor-only pages
-│   └── migrations/              # Database migrations
-├── ecommerce_project/           # Django config
-│   ├── settings.py              # Database, security, apps config
-│   ├── urls.py                  # Root URL config
-│   └── wsgi.py                  # WSGI application
-├── media/                       # User-uploaded files (images)
-├── requirements.txt             # Python dependencies
-├── manage.py                    # Django CLI
-└── seed_db.py                   # Sample data script
-```
-
-## Code Standards
-- Django and PEP 8 compliant
-- Two blank lines between top-level classes and functions
-- Proper permission decorators on restricted views
-- Clean separation of concerns
-
-## Production Deployment
-Before deploying to production:
-1. Set `DEBUG=False` in environment variables
-2. Generate a new `SECRET_KEY` and set via environment
-3. Configure `ALLOWED_HOSTS` appropriately
-4. Use a production-grade database server
-5. Collect static files: `python manage.py collectstatic`
-6. Use a WSGI server (Gunicorn, uWSGI, etc.) instead of the development server
-7. Enable SSL/TLS (HTTPS)
-

@@ -78,7 +78,7 @@
     </a>
 </div>
 
-<div class="grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 50px;">
+<div class="grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 50px;">
     <div class="stat-card">
         <span class="stat-value">{{ stores.count }}</span>
         <span class="stat-label">Active Stores</span>
@@ -88,10 +88,60 @@
         <span class="stat-label">Total Products</span>
     </div>
     <div class="stat-card">
-        <span class="stat-value">$---</span>
+        <span class="stat-value">${{ total_sales }}</span>
         <span class="stat-label">Total Sales</span>
     </div>
+    <div class="stat-card">
+        <span class="stat-value">{{ total_buyers }}</span>
+        <span class="stat-label">Total Buyers</span>
+    </div>
 </div>
+
+<div style="background: white; padding: 30px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 50px;">
+    <h2 style="margin-bottom: 20px;">Business Growth</h2>
+    {% if chart_data %}
+        <canvas id="salesChart" height="100"></canvas>
+    {% else %}
+        <p style="color: var(--text-muted); text-align: center; padding: 40px 0;">No sales data available yet to display growth.</p>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const canvas = document.getElementById('salesChart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            const labels = {{ chart_labels|safe }};
+            const data = {{ chart_data|safe }};
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Gross Sales ($)',
+                        data: data,
+                        borderColor: '#ff6b00',
+                        backgroundColor: 'rgba(255, 107, 0, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+    });
+</script>
 
 <h2>Your Stores</h2>
 <div style="margin-top: 30px;">

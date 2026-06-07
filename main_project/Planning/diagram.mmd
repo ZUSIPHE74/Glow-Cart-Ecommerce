@@ -1,0 +1,32 @@
+sequenceDiagram
+    participant Vendor
+    participant Buyer
+    participant API as GlowCart API
+    participant DB as Database
+
+    Note over Vendor, API: Authentication Required for Mutations
+    
+    Vendor->>API: POST /api/v1/stores/ (Create Store)
+    API->>DB: Save Store
+    DB-->>API: Store Object
+    API-->>Vendor: 201 Created
+
+    Vendor->>API: POST /api/v1/products/ (Add Product)
+    API->>DB: Validate Store Ownership & Save Product
+    DB-->>API: Product Object
+    API-->>Vendor: 201 Created
+
+    Buyer->>API: GET /api/v1/stores/?vendor_id={id}
+    API->>DB: Query Stores by Vendor
+    DB-->>API: Store List
+    API-->>Buyer: 200 OK
+
+    Buyer->>API: GET /api/v1/products/?store_id={id}
+    API->>DB: Query Products by Store
+    DB-->>API: Product List
+    API-->>Buyer: 200 OK
+
+    Buyer->>API: GET /api/v1/reviews/?product_id={id}
+    API->>DB: Query Reviews
+    DB-->>API: Review List
+    API-->>Buyer: 200 OK

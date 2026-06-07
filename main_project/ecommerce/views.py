@@ -173,7 +173,10 @@ def reset_password_security(request):
 
 def home(request):
     """Home page showing products"""
-    products = Product.objects.filter(is_available=True, stock_quantity__gt=0)
+    products = Product.objects.filter(is_available=True, stock_quantity__gt=0).exclude(
+        (Q(image='') | Q(image__isnull=True)) & 
+        (Q(image_url='') | Q(image_url__isnull=True))
+    )
     
     # Search functionality
     query = request.GET.get('q')
@@ -428,13 +431,18 @@ def checkout(request):
 
 def download_invoice_pdf(request, order_id):
     """Generate and download order invoice as PDF"""
-    order = get_object_or_404(Order, id=order_id, buyer=request.user)
+    from django.http import Http404
+    order = get_object_or_404(Order, id=order_id)
+    is_vendor = order.items.filter(product__store__owner=request.user).exists()
+    if order.buyer != request.user and not is_vendor and not request.user.is_superuser:
+        raise Http404("Order not found or permission denied")
+    
     order_items = order.items.all()
     
     context = {
         'order': order,
         'items': order_items,
-        'user': request.user,
+        'user': order.buyer,  # Invoice usually prints buyer details
         'order_date': order.order_date,
     }
     
@@ -464,26 +472,40 @@ def notifications_list(request):
     }
     return render(request, 'ecommerce/notifications.html', context)
 
-# Remove the send_invoice_email function as it's no longer needed
-
 @login_required
 def order_confirmation(request, order_id):
     """Order confirmation page"""
-    order = get_object_or_404(Order, id=order_id, buyer=request.user)
+    from django.http import Http404
+    order = get_object_or_404(Order, id=order_id)
+    is_vendor = order.items.filter(product__store__owner=request.user).exists()
+    if order.buyer != request.user and not is_vendor and not request.user.is_superuser:
+        raise Http404("Order not found or permission denied")
+        
     order_items = order.items.select_related('product')
     seen_products = set()
     reviewable_products = []
-    for item in order_items:
-        product = item.product
-        if product.id in seen_products:
-            continue
-        seen_products.add(product.id)
-        if not Review.objects.filter(product=product, user=request.user).exists():
-            reviewable_products.append(product)
+    
+    if order.buyer == request.user:
+        for item in order_items:
+            product = item.product
+            if product.id in seen_products:
+                continue
+            seen_products.add(product.id)
+            if not Review.objects.filter(product=product, user=request.user).exists():
+                reviewable_products.append(product)
+                
+    show_review_popup = False
+    if reviewable_products and order.buyer == request.user:
+        popup_count = request.session.get('review_popup_count', 0)
+        if popup_count < 3:
+            show_review_popup = True
+            request.session['review_popup_count'] = popup_count + 1
 
     return render(request, 'ecommerce/order_confirmation.html', {
         'order': order,
         'reviewable_products': reviewable_products,
+        'is_vendor': is_vendor,
+        'show_review_popup': show_review_popup,
     })
 
 # ============ REVIEW VIEWS ============
@@ -514,7 +536,13 @@ def add_review(request, product_id):
             review.is_verified = user_has_successful_order_for_product(request.user, product)
             review.save()
             
+            # No notification for reviews, only for orders and order updates
+            
             messages.success(request, 'Review added successfully!')
+            
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
             return redirect('ecommerce:product_detail', product_id=product_id)
     else:
         form = ReviewForm()
@@ -530,12 +558,34 @@ def add_review(request, product_id):
 @permission_required('ecommerce.add_store', raise_exception=True)
 def vendor_dashboard(request):
     """Vendor dashboard showing their stores and products"""
+    from django.db.models.functions import TruncDate
+    from django.db.models import Sum, F
     stores = Store.objects.filter(owner=request.user)
+    
+    shipped_order_items = OrderItem.objects.filter(
+        product__store__owner=request.user,
+        order__status__in=['shipped', 'delivered']
+    )
+    total_sales = sum(item.quantity * item.price_at_time for item in shipped_order_items)
+    total_buyers = shipped_order_items.values('order__buyer').distinct().count()
+    
+    sales_data = shipped_order_items.annotate(
+        date=TruncDate('order__order_date')
+    ).values('date').annotate(
+        revenue=Sum(F('quantity') * F('price_at_time'))
+    ).order_by('date')
+    
+    chart_labels = [data['date'].strftime("%Y-%m-%d") for data in sales_data if data['date']]
+    chart_data = [float(data['revenue']) for data in sales_data if data['date']]
     
     context = {
         'stores': stores,
         'total_stores': stores.count(),
         'total_products': Product.objects.filter(store__owner=request.user).count(),
+        'total_sales': total_sales,
+        'total_buyers': total_buyers,
+        'chart_labels': chart_labels,
+        'chart_data': chart_data,
     }
     return render(request, 'ecommerce/vendor/dashboard.html', context)
 
@@ -574,12 +624,16 @@ def manage_store(request, store_id):
     pending_orders = all_orders.filter(status='pending')
     shipped_orders = all_orders.filter(status='shipped')
     
+    # Get reviews for this store's products
+    reviews = Review.objects.filter(product__store=store).order_by('-created_at')
+    
     context = {
         'store': store,
         'products': products,
         'pending_orders': pending_orders,
         'shipped_orders': shipped_orders,
         'all_orders': all_orders,
+        'reviews': reviews,
     }
     return render(request, 'ecommerce/vendor/manage_store.html', context)
 
@@ -741,3 +795,7 @@ def delete_product(request, product_id):
         'object': product,
         'type': 'product'
     })
+
+def api_docs(request):
+    """API documentation view"""
+    return render(request, 'ecommerce/api_docs.html')
