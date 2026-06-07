@@ -106,6 +106,16 @@ GlowCart includes a robust REST API supporting both standard **Django REST Frame
 
 ---
 
+## API Sequence Diagram
+
+A visual sequence diagram illustrating the interactions a user (both Buyers and Vendors) has with the GlowCart RESTful API is included in the project:
+- **Mermaid Source File**: [Planning/diagram.mmd](Planning/diagram.mmd)
+- **High-Quality Diagram Image**: [Planning/api_sequence_diagram.png](Planning/api_sequence_diagram.png)
+
+This diagram documents the request-response lifecycle, database queries, and authorization rules for endpoints like creating stores, adding products, and retrieving reviews.
+
+---
+
 ## Setup & Local Testing
 
 ### Prerequisites
