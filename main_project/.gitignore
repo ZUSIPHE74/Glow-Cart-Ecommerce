@@ -23,3 +23,7 @@ ENV/
 
 # Windows
 Thumbs.db
+.neon
+.env.local
+.env.local
+.neon
