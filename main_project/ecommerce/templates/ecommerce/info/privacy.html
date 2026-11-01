@@ -1,0 +1,26 @@
+{% extends 'ecommerce/info/_page.html' %}
+
+{% block page %}
+<p>{{ seller.name }} is the responsible party for your personal information under the Protection of Personal
+    Information Act (POPIA).</p>
+
+<h2>What we collect and why</h2>
+<ul>
+    <li><strong>Account details</strong> (username, name, email, a hashed security answer) to run your account.</li>
+    <li><strong>Order details</strong> (items, shipping address, payment reference) to deliver your orders. Vendors see
+        the details they need to ship.</li>
+    <li><strong>Preferences</strong> such as your display currency.</li>
+</ul>
+<p>Payments are handled by PayFast; we receive only a payment reference, never your card details.</p>
+
+<h2>Cookies</h2>
+<p>We use essential cookies only: to keep you signed in, protect forms and remember your cart and currency.</p>
+
+<h2>Your rights</h2>
+<p>You may ask to see, correct or delete your personal information, or object to its use, by emailing
+    <a href="mailto:{{ seller.email }}">{{ seller.email }}</a>. You may also complain to the Information Regulator
+    (inforegulator.org.za).</p>
+
+<h2>How long we keep it</h2>
+<p>Order records are kept for 5 years as required for tax purposes; other data until you close your account.</p>
+{% endblock %}

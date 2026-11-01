@@ -1,0 +1,27 @@
+{% extends 'ecommerce/info/_page.html' %}
+
+{% block page %}
+<h2>Who you are buying from</h2>
+<p>Products on GlowCart are sold by the vendor named on each product page. {{ seller.name }} runs the marketplace and
+    collects payment on the vendors' behalf. Contact details are on our <a href="{% url 'ecommerce:info_page' 'contact' %}">contact page</a>.</p>
+
+<h2>Prices and payment</h2>
+<ul>
+    <li>Prices are set and charged in South African rand (ZAR), including VAT where the vendor is VAT-registered.</li>
+    <li>Prices shown in other currencies are estimates using daily exchange rates; your bank converts the rand amount.</li>
+    <li>Payments are processed by PayFast. We never see or store your card details.</li>
+    <li>An order is confirmed once PayFast confirms payment. Unpaid orders are cancelled after
+        {{ unpaid_timeout }} minutes and the stock is released.</li>
+</ul>
+
+<h2>Delivery</h2>
+<p>Vendors ship paid orders to the address you give at checkout and update the order status as it progresses. You
+    can follow every order under <a href="{% url 'ecommerce:my_orders' %}">My orders</a>.</p>
+
+<h2>Cancellations, returns and refunds</h2>
+<p>See our <a href="{% url 'ecommerce:info_page' 'returns' %}">returns and refunds policy</a>, which sets out your rights
+    under the Consumer Protection Act and the Electronic Communications and Transactions Act.</p>
+
+<h2>Your account</h2>
+<p>Keep your password private. You're responsible for orders placed from your account.</p>
+{% endblock %}

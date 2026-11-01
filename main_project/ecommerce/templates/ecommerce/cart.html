@@ -1,4 +1,5 @@
 {% extends 'ecommerce/base.html' %}
+{% load custom_filters %}
 
 {% block title %}Your Shopping Cart - GlowCart{% endblock %}
 
@@ -126,7 +127,7 @@
                         </div>
                         <div>
                             <a href="{% url 'ecommerce:product_detail' item.product.id %}" class="product-name-link">{{ item.product.name }}</a>
-                            <p style="color: var(--text-muted); font-size: 0.9rem;">${{ item.product.price }} each</p>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">{% price item.product.price %} each</p>
                         </div>
                     </td>
                     <td>
@@ -137,7 +138,7 @@
                                 style="width: 80px; padding: 10px; text-align: center;" onchange="this.form.submit()">
                         </form>
                     </td>
-                    <td style="font-weight: 700;">${{ item.subtotal }}</td>
+                    <td style="font-weight: 700;">{% price item.subtotal %}</td>
                     <td style="text-align: right;">
                         <a href="{% url 'ecommerce:remove_from_cart' item.product.id %}" class="remove-btn">
                             <i class="fas fa-trash-alt"></i>
@@ -159,7 +160,7 @@
             <div style="margin-top: 25px;">
                 <div class="summary-row">
                     <span>Subtotal</span>
-                    <span>${{ total }}</span>
+                    <span>{% price total %}</span>
                 </div>
                 <div class="summary-row">
                     <span>Shipping</span>
@@ -167,7 +168,7 @@
                 </div>
                 <div class="summary-total">
                     <span>Total</span>
-                    <span style="color: var(--primary);">${{ total }}</span>
+                    <span style="color: var(--primary);">{% price total %}</span>
                 </div>
             </div>
 
