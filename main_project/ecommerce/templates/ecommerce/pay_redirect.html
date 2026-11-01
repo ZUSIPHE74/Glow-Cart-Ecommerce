@@ -1,0 +1,30 @@
+{% extends 'ecommerce/base.html' %}
+{% load custom_filters %}
+
+{% block title %}Paying for order #{{ order.id }} - GlowCart{% endblock %}
+
+{% block content %}
+<div style="max-width: 560px; margin: 40px auto; text-align: center;">
+    <i class="fas fa-lock" style="font-size: 2.5rem; color: var(--primary);"></i>
+    <h1 style="margin: 20px 0 10px;">Taking you to PayFast…</h1>
+    <p style="color: var(--text-muted);">
+        Order #{{ order.id }} · {{ order.total_amount|rand }}. You'll pay on PayFast's secure page and come straight back here.
+    </p>
+
+    <form id="payfast-form" action="{{ process_url }}" method="POST" style="margin-top: 30px;">
+        {% for name, value in fields %}
+        <input type="hidden" name="{{ name }}" value="{{ value }}">
+        {% endfor %}
+        <button type="submit" class="btn btn-primary" style="padding: 16px 40px;">
+            Continue to PayFast <i class="fas fa-arrow-right"></i>
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Go straight on; the button remains if scripts are blocked.
+    document.getElementById('payfast-form').submit();
+</script>
+{% endblock %}

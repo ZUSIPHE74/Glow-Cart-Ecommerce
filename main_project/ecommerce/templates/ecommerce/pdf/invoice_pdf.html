@@ -112,8 +112,8 @@
             <tr>
                 <td>{{ item.product.name }}</td>
                 <td style="text-align: center;">{{ item.quantity }}</td>
-                <td style="text-align: right;">${{ item.price_at_time }}</td>
-                <td style="text-align: right;">${{ item.quantity|multiply:item.price_at_time }}</td>
+                <td style="text-align: right;">{{ item.price_at_time|rand }}</td>
+                <td style="text-align: right;">{{ item.line_total|rand }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -121,7 +121,7 @@
 
     <div class="total-section">
         <p>Total Amount Paid:</p>
-        <div class="total-amount">${{ order.total_amount }}</div>
+        <div class="total-amount">{{ order.total_amount|rand }}</div>
     </div>
 
     <div class="footer">

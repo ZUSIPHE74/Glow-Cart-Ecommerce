@@ -1,0 +1,14 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block title %}Offline - GlowCart{% endblock %}
+
+{% block content %}
+<div style="max-width: 520px; margin: 60px auto; text-align: center;">
+    <i class="fas fa-wifi" style="font-size: 2.5rem; color: var(--text-muted);"></i>
+    <h1 style="margin: 20px 0 10px;">You're offline</h1>
+    <p style="color: var(--text-muted);">
+        Pages you've visited recently are still available. Reconnect to browse new products, use your cart or check out.
+    </p>
+    <button type="button" class="btn btn-primary" style="margin-top: 24px;" onclick="location.reload()">Try again</button>
+</div>
+{% endblock %}

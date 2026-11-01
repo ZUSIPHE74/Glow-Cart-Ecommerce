@@ -25,7 +25,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),
     
-    # Cart (session-based)
+    # Cart (session for visitors, saved on the account once signed in)
     path('cart/', views.view_cart, name='view_cart'),
     path('cart/add/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/update/<int:product_id>/', views.update_cart, name='update_cart'),
@@ -33,7 +33,20 @@ urlpatterns = [
     
     # Checkout (requires login)
     path('checkout/', views.checkout, name='checkout'),
+    path('order/<int:order_id>/pay/', views.pay_order, name='pay_order'),
+    path('order/<int:order_id>/payment-cancelled/', views.payment_cancelled, name='payment_cancelled'),
+    path('payfast/notify/', views.payfast_notify, name='payfast_notify'),
     path('order-confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
+    path('orders/', views.my_orders, name='my_orders'),
+    path('currency/', views.set_currency, name='set_currency'),
+
+    # Contact and legal pages
+    path('info/<slug:page>/', views.info_page, name='info_page'),
+
+    # Installable app
+    path('manifest.webmanifest', views.web_manifest, name='web_manifest'),
+    path('sw.js', views.service_worker, name='service_worker'),
+    path('offline/', views.offline, name='offline'),
     path('invoice/<int:order_id>/pdf/', views.download_invoice_pdf, name='download_invoice_pdf'),
     
     # Notifications/Messages

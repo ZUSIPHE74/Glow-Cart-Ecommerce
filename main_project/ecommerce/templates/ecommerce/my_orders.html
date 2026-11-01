@@ -1,0 +1,78 @@
+{% extends 'ecommerce/base.html' %}
+{% load custom_filters %}
+
+{% block title %}My orders - GlowCart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .orders-list {
+        display: grid;
+        gap: 16px;
+        max-width: 900px;
+    }
+
+    .order-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 20px 24px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: white;
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.2s;
+    }
+
+    .order-row:hover {
+        border-color: var(--primary);
+    }
+
+    .order-items {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-top: 4px;
+    }
+
+    .status-pill {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: var(--surface);
+        border: 1px solid var(--border);
+    }
+
+    .status-pending { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
+    .status-processing, .status-shipped { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+    .status-delivered { background: #ecfdf5; border-color: #a7f3d0; color: #047857; }
+    .status-cancelled { color: var(--text-muted); }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom: 24px;">My <span style="color: var(--primary);">orders</span></h1>
+
+{% if orders %}
+<div class="orders-list">
+    {% for order in orders %}
+    <a class="order-row" href="{% url 'ecommerce:order_confirmation' order.id %}">
+        <div>
+            <strong>Order #{{ order.id }}</strong>
+            <span class="status-pill status-{{ order.status }}">{{ order.get_status_display }}</span>
+            <div class="order-items">
+                {{ order.order_date|date:"j M Y" }} ·
+                {% for item in order.items.all %}{{ item.quantity }} × {{ item.product_name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            </div>
+        </div>
+        <strong>{{ order.total_amount|rand }}</strong>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p style="color: var(--text-muted);">You haven't placed any orders yet.</p>
+<a href="{% url 'ecommerce:home' %}" class="btn btn-primary" style="margin-top: 16px;">Start shopping</a>
+{% endif %}
+{% endblock %}

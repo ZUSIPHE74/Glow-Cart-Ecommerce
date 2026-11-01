@@ -1,0 +1,17 @@
+{% extends 'ecommerce/info/_page.html' %}
+
+{% block page %}
+<p>GlowCart is an online marketplace operated by {{ seller.name }}. Independent vendors list their products here;
+    {{ seller.name }} takes payment for every order and passes each vendor their share.</p>
+
+<h2>Get in touch</h2>
+<ul>
+    <li>Email: <a href="mailto:{{ seller.email }}">{{ seller.email }}</a></li>
+    {% if seller.phone %}<li>Phone: {{ seller.phone }}</li>{% endif %}
+    {% if seller.address %}<li>Address: {{ seller.address }}</li>{% endif %}
+</ul>
+
+<h2>Questions about an order</h2>
+<p>Please include your order number (shown under <a href="{% url 'ecommerce:my_orders' %}">My orders</a>). We aim to reply
+    within two business days.</p>
+{% endblock %}

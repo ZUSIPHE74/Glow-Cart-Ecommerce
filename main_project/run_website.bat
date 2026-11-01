@@ -16,6 +16,9 @@ if errorlevel 1 (
     exit /b 1
 )
 
+echo Loading the demo catalogue...
+"%PYTHON_EXE%" manage.py seed_demo
+
 echo Starting website at http://127.0.0.1:8000/
 "%PYTHON_EXE%" manage.py runserver 127.0.0.1:8000
 

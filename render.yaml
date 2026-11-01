@@ -1,20 +1,40 @@
+# Render Blueprint. If the service was created by hand in the dashboard, copy these
+# settings there instead (see README "Deploying to Render").
 services:
   - type: web
     name: GlowCart-Ecommerce
-    env: python
+    runtime: python
+    plan: free
     region: oregon
     branch: main
-    buildCommand: cd main_project && pip install -r requirements.txt && python manage.py collectstatic --noinput
-    preDeployCommand: cd main_project && python manage.py migrate --noinput
+    buildCommand: ./build.sh
     startCommand: cd main_project && gunicorn ecommerce_project.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
+      - key: PYTHON_VERSION
+        value: "3.13"
       - key: DJANGO_DEBUG
         value: "False"
-      - key: USE_SQLITE
-        value: "True"
-      - key: DJANGO_ALLOWED_HOSTS
-        value: "*"
       - key: DJANGO_SECRET_KEY
-        value: "glowcart-secret-key-prod-12345"
-      - key: DEFAULT_FROM_EMAIL
-        value: "noreply@glowcart.com"
+        generateValue: true
+      # Neon (or any Postgres) connection string. Without it, data is lost on restart.
+      - key: DATABASE_URL
+        sync: false
+      # Payments: sandbox until you set your own PayFast merchant details and turn this off.
+      - key: PAYFAST_SANDBOX
+        value: "True"
+      - key: PAYFAST_MERCHANT_ID
+        sync: false
+      - key: PAYFAST_MERCHANT_KEY
+        sync: false
+      - key: PAYFAST_PASSPHRASE
+        sync: false
+      - key: MARKETPLACE_COMMISSION_PERCENT
+        value: "10"
+      - key: SELLER_NAME
+        sync: false
+      - key: SELLER_EMAIL
+        sync: false
+      - key: SELLER_PHONE
+        sync: false
+      - key: SELLER_ADDRESS
+        sync: false

@@ -78,6 +78,7 @@
 
         <form method="POST" action="{% url 'ecommerce:login' %}">
             {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
             <div class="form-group">
                 <label for="username">Username</label>
                 <div class="input-icon-wrapper">
@@ -112,6 +113,14 @@
         <div class="auth-footer">
             Don't have an account? <a href="{% url 'ecommerce:register' %}">Create Account</a>
         </div>
+
+        {% if demo_accounts %}
+        <div style="margin-top: 24px; padding: 16px; border: 1px dashed var(--border); border-radius: 12px; font-size: 0.9rem;">
+            <strong>Try it with a demo account</strong>
+            <p style="color: var(--text-muted); margin: 6px 0 0;">Buyer: <code>demo_buyer</code> · Vendor: <code>demo_vendor</code><br>
+                Password for both: <code>GlowDemo2026!</code></p>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

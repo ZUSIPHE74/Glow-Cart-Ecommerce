@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.hashers import check_password, make_password
 from .models import Store, Product, Review, Profile
 
 
@@ -34,9 +35,25 @@ class UserRegistrationForm(UserCreationForm):
             Profile.objects.create(
                 user=user,
                 security_question=self.cleaned_data['security_question'],
-                security_answer=self.cleaned_data['security_answer']
+                security_answer=hash_security_answer(self.cleaned_data['security_answer'])
             )
         return user
+
+
+def _normalise_answer(answer):
+    return ' '.join((answer or '').lower().split())
+
+
+def hash_security_answer(answer):
+    return make_password(_normalise_answer(answer))
+
+
+def security_answer_matches(profile, answer):
+    """Checks an answer against the stored hash (or a plain answer from before hashing)."""
+    stored = profile.security_answer
+    if check_password(_normalise_answer(answer), stored):
+        return True
+    return '$' not in stored and stored.lower() == (answer or '').lower()
 
 
 class StoreForm(forms.ModelForm):
@@ -53,11 +70,19 @@ class ProductForm(forms.ModelForm):
     """Form for creating/editing products"""
     class Meta:
         model = Product
-        fields = ['name', 'description', 'price', 'stock_quantity', 'category', 'brand', 'condition', 'specifications', 'image', 'image_url']
+        # Images are links: uploaded files would vanish on Render's free plan.
+        fields = ['name', 'description', 'price', 'stock_quantity', 'category', 'brand', 'condition', 'specifications', 'image_url']
+        labels = {'image_url': 'Image URL', 'price': 'Price (R)'}
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3, 'placeholder': 'General product description...'}),
             'specifications': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Technical specifications, dimensions, etc.'}),
         }
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['image_url'].required = True
+        self.fields['image_url'].help_text = 'Link to a product photo, e.g. from your website or an image host.'
 
 
 class ReviewForm(forms.ModelForm):
@@ -72,27 +97,6 @@ class ReviewForm(forms.ModelForm):
 
 
 class CheckoutForm(forms.Form):
-    """Form for checkout information"""
+    """Shipping details. Payment happens on PayFast's secure page, never here."""
     shipping_address = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}))
-    
-    PAYMENT_CHOICES = [
-        ('credit_card', 'Credit Card'),
-        ('paypal', 'PayPal'),
-        ('apple_pay', 'Apple Pay'),
-    ]
-    payment_method = forms.ChoiceField(choices=PAYMENT_CHOICES, widget=forms.RadioSelect, initial='apple_pay')
-    
-    card_number = forms.CharField(max_length=16, min_length=16, required=False, widget=forms.TextInput(attrs={'placeholder': '16-digit card number', 'class': 'form-control'}))
-    expiry_date = forms.CharField(max_length=5, min_length=5, required=False, widget=forms.TextInput(attrs={'placeholder': 'MM/YY', 'class': 'form-control'}))
-    cvv = forms.CharField(max_length=4, min_length=3, required=False, widget=forms.TextInput(attrs={'placeholder': 'CVV', 'class': 'form-control'}))
-
     confirm_purchase = forms.BooleanField(required=True, label="I confirm my purchase")
-
-    def clean(self):
-        cleaned_data = super().clean()
-        payment_method = cleaned_data.get('payment_method')
-        
-        if payment_method == 'credit_card':
-            if not cleaned_data.get('card_number') or not cleaned_data.get('expiry_date') or not cleaned_data.get('cvv'):
-                raise forms.ValidationError("Please provide all card details (Card Number, Expiry, CVV) for Credit Card payment.")
-        return cleaned_data

@@ -1,4 +1,5 @@
 {% extends 'ecommerce/base.html' %}
+{% load custom_filters %}
 
 {% block title %}Manage {{ store.name }} - GlowCart{% endblock %}
 
@@ -83,7 +84,7 @@
             </div>
             <div>
                 <strong style="display: block; font-size: 1.1rem;">{{ product.name }}</strong>
-                <span style="color: var(--text-muted); font-size: 0.9rem;">${{ product.price }} | Stock: {{ product.stock_quantity }}</span>
+                <span style="color: var(--text-muted); font-size: 0.9rem;">{{ product.price|rand }} | Stock: {{ product.stock_quantity }}</span>
             </div>
         </div>
         <div>
@@ -125,7 +126,7 @@
                 </div>
             </div>
             <div style="text-align: right;">
-                <span class="status-badge" style="background: #fffbeb; color: #f59e0b; margin-bottom: 10px; display: inline-block;">Pending</span>
+                <span class="status-badge" style="background: #fffbeb; color: #f59e0b; margin-bottom: 10px; display: inline-block;">Paid, ready to ship</span>
                 <div style="display: flex; gap: 10px; justify-content: flex-end;">
                     <a href="{% url 'ecommerce:update_order_status' order.id 'shipped' %}" class="btn btn-primary" style="padding: 6px 15px; font-size: 0.8rem;">
                         Mark as Shipped
@@ -134,7 +135,7 @@
             </div>
         </div>
         {% empty %}
-        <p style="color: var(--text-muted); text-align: center; padding: 20px;">No pending orders.</p>
+        <p style="color: var(--text-muted); text-align: center; padding: 20px;">No paid orders waiting to ship.</p>
         {% endfor %}
 
         <div style="display: flex; gap: 30px; margin-top: 40px; margin-bottom: 30px; border-bottom: 2px solid var(--border); padding-bottom: 10px;">

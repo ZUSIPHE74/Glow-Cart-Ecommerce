@@ -1,4 +1,5 @@
 {% extends 'ecommerce/base.html' %}
+{% load custom_filters %}
 
 {% block title %}{{ product.name }} - GlowCart{% endblock %}
 
@@ -100,7 +101,7 @@
         <h1>{{ product.name }}</h1>
         <p style="color: var(--text-muted)">Sold by <strong>{{ product.store.name }}</strong></p>
 
-        <div class="price-tag">${{ product.price }}</div>
+        <div class="price-tag">{% price product.price %}</div>
 
         {% if product.stock_quantity > 0 %}
         <span class="stock-badge in-stock">

@@ -1,0 +1,43 @@
+{% extends 'ecommerce/base.html' %}
+
+{% block title %}{{ page_title }} - GlowCart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .info-page {
+        max-width: 760px;
+        line-height: 1.7;
+    }
+
+    .info-page h1 {
+        margin-bottom: 8px;
+    }
+
+    .info-page h2 {
+        font-size: 1.2rem;
+        margin: 32px 0 8px;
+    }
+
+    .info-page p,
+    .info-page li {
+        color: #374151;
+    }
+
+    .info-page ul {
+        padding-left: 20px;
+    }
+
+    .info-updated {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<article class="info-page">
+    <h1>{{ page_title }}</h1>
+    <p class="info-updated">{{ seller.name }}</p>
+    {% block page %}{% endblock %}
+</article>
+{% endblock %}

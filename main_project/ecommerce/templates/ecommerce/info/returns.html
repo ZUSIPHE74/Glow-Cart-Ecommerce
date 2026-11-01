@@ -1,0 +1,23 @@
+{% extends 'ecommerce/info/_page.html' %}
+
+{% block page %}
+<h2>Changed your mind (7-day cooling-off)</h2>
+<p>Because you buy online, the Electronic Communications and Transactions Act lets you cancel within 7 days of
+    receiving your goods, without giving a reason. Return the item unused and in its original packaging; you pay only
+    the cost of returning it.</p>
+
+<h2>Faulty or not as described</h2>
+<p>Under the Consumer Protection Act, if an item is defective or not what was described, you may return it within
+    6 months of delivery for a repair, replacement or refund, at no cost to you.</p>
+
+<h2>How to return something</h2>
+<ol>
+    <li>Email <a href="mailto:{{ seller.email }}">{{ seller.email }}</a> with your order number and the reason.</li>
+    <li>We'll confirm the return address with the vendor.</li>
+    <li>Refunds go back to your original payment method within 10 business days of the item arriving back.</li>
+</ol>
+
+<h2>Cancelling before delivery</h2>
+<p>Unpaid orders cancel automatically. To cancel a paid order before it ships, contact us as soon as possible and
+    we'll refund you in full.</p>
+{% endblock %}

@@ -22,7 +22,8 @@ class Profile(models.Model):
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     security_question = models.CharField(max_length=50, choices=SECURITY_QUESTIONS)
-    security_answer = models.CharField(max_length=255)  # Should probably be hashed but user didn't specify
+    security_answer = models.CharField(max_length=255)  # hashed, see forms.UserRegistrationForm
+    currency = models.CharField(max_length=3, blank=True, help_text="Preferred display currency")
     
     def __str__(self):
         return f"Profile for {self.user.username}"
@@ -101,7 +102,7 @@ class Product(models.Model):
 class Order(models.Model):
     """Order model for purchases"""
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
+        ('pending', 'Awaiting payment'),
         ('processing', 'Processing'),
         ('shipped', 'Shipped'),
         ('delivered', 'Delivered'),
@@ -114,9 +115,16 @@ class Order(models.Model):
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     shipping_address = models.TextField()
     invoice_sent = models.BooleanField(default=False)
-    
+    paid_at = models.DateTimeField(null=True, blank=True)
+    # PayFast's pf_payment_id for the completed payment
+    payment_reference = models.CharField(max_length=100, blank=True)
+
     def __str__(self):
         return f"Order #{self.id} by {self.buyer.username}"
+
+    @property
+    def is_paid(self):
+        return self.paid_at is not None
 
     def is_successful(self):
         return self.status != 'cancelled'
@@ -124,14 +132,57 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    """Items within an order"""
+    """Items within an order. Name, store and commission are kept so the order
+    history and vendor earnings survive later changes to the product."""
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+    product_name = models.CharField(max_length=200, blank=True)
+    store = models.ForeignKey(Store, on_delete=models.SET_NULL, null=True, blank=True, related_name='order_items')
     quantity = models.IntegerField()
     price_at_time = models.DecimalField(max_digits=10, decimal_places=2)
-    
+    commission_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
     def __str__(self):
-        return f"{self.quantity}x {self.product.name}"
+        return f"{self.quantity}x {self.product_name}"
+
+    @property
+    def line_total(self):
+        return self.price_at_time * self.quantity
+
+    @property
+    def vendor_amount(self):
+        return self.line_total - self.commission_amount
+
+
+class CartItem(models.Model):
+    """A signed-in shopper's cart, so it survives logout and other devices."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cart_items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'product']
+
+
+class ExchangeRate(models.Model):
+    """Units of `currency` per one unit of the base currency (rand)."""
+    currency = models.CharField(max_length=3, primary_key=True)
+    rate = models.DecimalField(max_digits=18, decimal_places=8)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class Payout(models.Model):
+    """Money the marketplace has paid a vendor, recorded by an admin."""
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name='payouts')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    reference = models.CharField(max_length=100, help_text="Bank transfer reference")
+    paid_on = models.DateField()
+    note = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Payout R{self.amount} to {self.store.name}"
 
 
 
