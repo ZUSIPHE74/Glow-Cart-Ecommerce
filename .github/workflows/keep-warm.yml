@@ -1,14 +1,14 @@
 name: Keep site warm
 
 # Render's free tier puts the site to sleep after 15 minutes without a request, and
-# waking it shows Render's loading screen for about 50 seconds. Pinging every 10
-# minutes keeps it awake during the day. Not around the clock: free instance hours
-# (750 a month) are shared across the Render account with the Lead Tracker API, so
-# the two schedules together are kept under that limit.
+# waking it shows Render's loading screen for about 50 seconds. Pinging every 5
+# minutes, around the clock, leaves a 10-minute margin for GitHub's scheduler delays.
+# Note: an always-awake service uses about 744 of the Render account's 750 free
+# instance hours a month, shared with any other free services in the account.
 on:
   schedule:
-    # Every 10 minutes, 07:00-21:00 South African time (UTC+2), every day
-    - cron: '*/10 5-18 * * *'
+    # Every 5 minutes, 24 hours a day
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -16,6 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-      - name: Ping the home page
+      - name: Ping the GlowCart home page
         # --max-time covers a cold start, so a sleeping site is woken, not just poked
-        run: curl --fail --silent --show-error --output /dev/null --max-time 120 --retry 2 https://glow-cart-ecommerce.onrender.com/
+        run: curl --fail --silent --show-error --output /dev/null --write-out 'HTTP %{http_code} in %{time_total}s\n' --max-time 120 --retry 2 https://glow-cart-ecommerce.onrender.com/
